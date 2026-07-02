@@ -2,6 +2,7 @@ import { Script } from 'playcanvas';
 import { CompositionStore } from './composition-store.mjs';
 import { SceneAggregator } from './scene-aggregator.mjs';
 import { ProductRegistry } from '../product/registry/product-registry.mjs';
+import { ProductController } from '../product/controller/product-controller.mjs';
 import { validatePatch, BOAT_ATTRIBUTES } from '../product/attributes/attributes-catalog.mjs';
 import { normalizeLayout, diffLayout, elementToPatch } from './layout/furniture-layout.mjs';
 import { LoggerService } from '../../services/logger/logger-service.mjs';
@@ -285,7 +286,7 @@ export class CompositionManager extends Script {
         entity.setLocalEulerAngles(0, snapshot.rotationY || 0, 0);
         template.parent.addChild(entity);
         if (!entity.script) entity.addComponent('script');
-        if (!entity.script.productController) entity.script.create('productController');
+        if (!entity.script.productController) entity.script.create(ProductController);
         this.app.dragModule?.bind?.(el.id);
         return entity;
     }

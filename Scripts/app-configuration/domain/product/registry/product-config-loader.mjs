@@ -1,4 +1,8 @@
-import { RuleParametricDimensions } from '../rules/boat/RuleParametricDimensions.mjs';
+import { RuleDeckLength } from '../rules/boat/RuleDeckLength.mjs';
+import { RuleDeckWidth } from '../rules/boat/RuleDeckWidth.mjs';
+import { RuleFenceLength } from '../rules/boat/RuleFenceLength.mjs';
+import { RuleFenceWidth } from '../rules/boat/RuleFenceWidth.mjs';
+import { RuleFrontIndent } from '../rules/boat/RuleFrontIndent.mjs';
 import { RuleFenceType } from '../rules/boat/RuleFenceType.mjs';
 import { RuleBoatMaterial } from '../rules/boat/RuleBoatMaterial.mjs';
 import { RuleFurnitureColor } from '../rules/furniture/RuleFurnitureColor.mjs';
@@ -14,7 +18,8 @@ export class ProductConfigLoader {
         registry.register('Boat', {
             role: 'platform-parametric',
             category: 'boat',
-            rules: [RuleParametricDimensions, RuleFenceType, RuleBoatMaterial],
+            rules: [RuleDeckLength, RuleDeckWidth, RuleFenceLength, RuleFenceWidth, RuleFrontIndent,
+                    RuleFenceType, RuleBoatMaterial],
             defaultConfig: { role: 'platform-parametric', type: 'Boat', ...defaultsForRole('platform-parametric', 'Boat') }
         });
 

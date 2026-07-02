@@ -1,4 +1,4 @@
-import { Vec3, BoundingBox, StandardMaterial, CULLFACE_NONE, BLEND_NORMAL, Color, Entity, Texture, ADDRESS_CLAMP_TO_EDGE, FILTER_LINEAR, PIXELFORMAT_RGBA8, LAYERID_WORLD, MeshInstance, Mesh, PRIMITIVE_TRIANGLES } from '../../../../../playcanvas-stable.min.mjs';
+import { Vec3, BoundingBox, StandardMaterial, CULLFACE_NONE, BLEND_NORMAL, Color, Entity, Texture, ADDRESS_CLAMP_TO_EDGE, FILTER_LINEAR, PIXELFORMAT_RGBA8, LAYERID_WORLD, MeshInstance, Mesh, PRIMITIVE_TRIANGLES } from 'playcanvas';
 
 // ═══════════════════════════════════════════════
 //  CONSTANTS

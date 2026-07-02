@@ -2,14 +2,11 @@
 export default {
   "meta": {
     "source": "BiminiBoatConfig.xlsx / Rules1",
-    "note": "keyframes: {at: input-inches, value: transform-units}. mode 'lerp' = linear interpolation between keyframes; 'step' = discrete lookup.",
+    "note": "keyframes: {at: input-inches, value: transform-units}. mode 'lerp' = linear interpolation between keyframes; 'step' = discrete lookup. Діапазони/step атрибутів НЕ тут — єдине джерело: attributes-catalog.mjs.",
     "units": "inches (UI) -> meters (scene)"
   },
   "dimensions": {
     "DeckLength": {
-      "min": 168,
-      "max": 384,
-      "step": 1,
       "mode": "lerp",
       "bindings": [
         {
@@ -73,9 +70,6 @@ export default {
       ]
     },
     "FenceLength": {
-      "min": 96,
-      "max": 335,
-      "step": 1,
       "mode": "lerp",
       "bindings": [
         {
@@ -118,13 +112,31 @@ export default {
               "value": 3.0353
             }
           ]
+        },
+        {
+          "variable": "fence_stretch_recenter",
+          "note": "КОМПЕНСАЦІЯ (не з Rules1): SmartStretch тягне симетрично від центру (±amount/2), а planes/tubes ще й успадковують -D від moove_negF1 (fence_unip — їх предок). Локальний зсув +D/2 фіксує передній край на місці і доводить задній до стінки. Якщо після перевірки щілина з іншого боку — інвертувати value.",
+          "fn": "MoveZ",
+          "targets": [
+            "fence_unip_right_plane",
+            "fence_unip_right_tube",
+            "fence_unip_left_plane",
+            "fence_unip_left_tube"
+          ],
+          "keyframes": [
+            {
+              "at": 96,
+              "value": 0.0
+            },
+            {
+              "at": 335,
+              "value": 1.51765
+            }
+          ]
         }
       ]
     },
     "FenceWidth": {
-      "min": 86,
-      "max": 100,
-      "step": 1,
       "mode": "lerp",
       "bindings": [
         {
@@ -198,9 +210,6 @@ export default {
       ]
     },
     "FrontIndent": {
-      "min": 0,
-      "max": 48,
-      "step": 1,
       "mode": "lerp",
       "note": "piecewise/non-linear in source; keep all keyframes",
       "bindings": [
@@ -232,16 +241,12 @@ export default {
       ]
     },
     "DeckWidth": {
-      "values": [
-        96,
-        102
-      ],
-      "step": 6,
       "mode": "step",
       "bindings": [
         {
           "variable": "deck_width_stretch",
-          "fn": "StretchZ",
+          "note": "FIX: у Rules1 колонка позначена StretchZ, але Z вже займає deck_stretch (DeckLength); ширина деки = вісь X",
+          "fn": "StretchX",
           "targets": [
             "Deck_back",
             "Deck_frame_back",

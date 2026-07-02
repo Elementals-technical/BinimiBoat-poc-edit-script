@@ -30,6 +30,7 @@ export class ProductRegistry {
     }
 
     get(productType) { return this._configs.get(productType); }
+    getProductTypes() { return [...this._configs.keys()]; }
     getRulesForProduct(productType) { return this.get(productType)?.rules || []; }
     getDefaultConfig(productType) { return { ...(this.get(productType)?.defaultConfig || {}) }; }
 

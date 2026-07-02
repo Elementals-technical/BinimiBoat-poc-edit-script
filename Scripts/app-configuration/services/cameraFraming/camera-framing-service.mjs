@@ -1,4 +1,4 @@
-import { math, StandardMaterial, Color, BLEND_NORMAL, Entity, BoundingBox } from '../../../../../playcanvas-stable.min.mjs';
+import { math, StandardMaterial, Color, BLEND_NORMAL, Entity, BoundingBox } from 'playcanvas';
 
 class CameraFramingService {
     /**
