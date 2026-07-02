@@ -9,9 +9,12 @@ import { LoggerService } from '../logger/logger-service.mjs';
  * АДАПТАЦІЇ ВІД HASTING:
  * - без auto-discover глобального `pc` (Bimini — ESM; app передається через init);
  * - прибрано SSAO-proxy guard і тригери TriPlanar/MeshBoolean (cabinet-специфіка);
- *   лишився тригер smartStretch (є в Bimini);
- * - збережено compat-метод apply(app, entity, name) — його використовують
- *   RuleBoatMaterial / RuleFurnitureColor.
+ *   лишився тригер smartStretch (є в Bimini).
+ *
+ * ПОДІЛ ВІДПОВІДАЛЬНОСТІ: сервіс = пошук asset-а, async-завантаження матеріалу
+ * та його ресурсів (текстур), кеш, дедуплікація, застосування до meshInstances.
+ * Правила (RuleBoatMaterial, RuleFurnitureColor) — ТОНКІ: знаходять target-entities
+ * і викликають loadMaterial / applyToEntity / applyMaterialByName.
  *
  * @example
  * const material = await MaterialService.loadMaterial('Navy');
@@ -44,23 +47,6 @@ export class MaterialService {
     // ═══════════════════════════════════════════════════════════
     //  STATIC API
     // ═══════════════════════════════════════════════════════════
-
-    /**
-     * COMPAT (старий контракт стуба): завантажити і застосувати матеріал до entity.
-     * @param {import('playcanvas').Application} app
-     * @param {object} entity
-     * @param {string} materialName
-     */
-    static async apply(app, entity, materialName) {
-        if (!entity || !materialName) return;
-        if (app && !MaterialService._app) MaterialService._app = app;
-        try {
-            const material = await MaterialService.loadMaterial(materialName);
-            MaterialService.applyToEntity(entity, material);
-        } catch (e) {
-            LoggerService.warn(null, `[MaterialService] apply("${materialName}") failed:`, e?.message || e);
-        }
-    }
 
     /**
      * Завантажує матеріал за іменем. Кешує — повторний виклик повертає кеш;
