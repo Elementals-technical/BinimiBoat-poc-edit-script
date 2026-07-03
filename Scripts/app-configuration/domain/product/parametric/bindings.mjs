@@ -1,5 +1,5 @@
 /** АВТО-ЗГЕНЕРОВАНО з BiminiBoatConfig.xlsx / Rules1. Джерело істини: bindings.json. */
-export default {
+const BIMINI_PARAMETRIC_BINDINGS = {
   "meta": {
     "source": "BiminiBoatConfig.xlsx / Rules1",
     "note": "keyframes: {at: input-inches, value: transform-units}. mode 'lerp' = linear interpolation between keyframes; 'step' = discrete lookup. Діапазони/step атрибутів НЕ тут — єдине джерело: attributes-catalog.mjs.",
@@ -380,3 +380,5 @@ export default {
     }
   }
 };
+
+export default BIMINI_PARAMETRIC_BINDINGS;
