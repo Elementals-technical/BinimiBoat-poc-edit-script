@@ -63,9 +63,10 @@ export default {
             },
             {
               "at": 384,
-              "value": 2.7432
+              "value": 5.4864
             }
-          ]
+          ],
+          "note": "FIX ×2 (не з Rules1): SmartStretch росте на ±amount/2 від pivot; деко-меші лежать по обидва боки pivot (Z -5..+2 / -2..+5), тож для розльоту країв ±D (синхронно з fence +D та engine -D) amount = 2D."
         }
       ]
     },
@@ -77,9 +78,6 @@ export default {
           "fn": "MoveZ",
           "targets": [
             "boat_fence_back",
-            "round_fence_36_back",
-            "round_fence_back",
-            "square_fence_back",
             "fence_unip"
           ],
           "keyframes": [
@@ -91,7 +89,8 @@ export default {
               "at": 335,
               "value": -3.0353
             }
-          ]
+          ],
+          "note": "FIX hierarchy: Rules1 also lists round/square back variant children, but they are descendants of boat_fence_back. Moving both parent and children doubles the visible back-wall offset; variants inherit this parent move."
         },
         {
           "variable": "fence_stretch",
@@ -146,9 +145,15 @@ export default {
             "square_fence_front_center_plane",
             "round_fence_front_center_plane",
             "round_fence_36_front_center_plane",
+            "square_fence_back_center_plane",
+            "round_fence_back_center_plane",
+            "round_fence_36_back_center_plane",
             "square_fence_front_center_tube",
             "round_fence_front_center_tube",
-            "round_fence_36_front_center_tube"
+            "round_fence_36_front_center_tube",
+            "square_fence_back_center_tube",
+            "round_fence_back_center_tube",
+            "round_fence_36_back_center_tube"
           ],
           "keyframes": [
             {
@@ -157,9 +162,10 @@ export default {
             },
             {
               "at": 100,
-              "value": 0.1778
+              "value": 0.3556
             }
-          ]
+          ],
+          "note": "FIX ×2 + center group: Rules1 rows 289-291 define center_stretch as *_center_plane*/*_center_tube*. Center panels are pivot-centered and grow ±amount/2; side sections move ±D, so amount = 2D. Apply to front and back centers to keep the back wall closed."
         },
         {
           "variable": "move_w_neg",
@@ -368,7 +374,8 @@ export default {
         "White": "White"
       },
       "targetGlobs": [
-        "*_fence_*_plane"
+        "*_fence_*_plane",
+        "fence_unip_*_plane"
       ]
     }
   }

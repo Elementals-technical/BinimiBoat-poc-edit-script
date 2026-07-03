@@ -7,11 +7,13 @@ import bindings from '../../parametric/bindings.mjs';
 /**
  * RuleFenceLength — довжина забору (96…335", lerp). Rules1 рядки 32-42.
  *
- * Логіка (2 binding-и):
- *   - moove_negF1: задня група забору (boat_fence_back, round/square_fence_back,
- *     fence_unip) → MoveZ 0…-3.0353 м (задня стінка їде назад);
+ * Логіка:
+ *   - moove_negF1: boat_fence_back + fence_unip → MoveZ 0…-3.0353 м
+ *     (round/square back variants НЕ рухаємо окремо, бо це descendants
+ *     boat_fence_back; інакше видимий back wall отримує offset двічі);
  *   - fence_stretch: бокові панелі/труби (fence_unip_right/left_plane+tube)
  *     → StretchZ 0…3.0353 м (боковини розтягуються по довжині).
+ *   - fence_stretch_recenter: компенсація SmartStretch pivot для боковин.
  */
 export class RuleFenceLength extends BaseProductRule {
     constructor() {
