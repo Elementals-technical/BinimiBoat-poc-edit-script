@@ -8,8 +8,8 @@ import { LoggerService } from '../logger/logger-service.mjs';
  *
  * АДАПТАЦІЇ ВІД HASTING:
  * - без auto-discover глобального `pc` (Bimini — ESM; app передається через init);
- * - прибрано SSAO-proxy guard і тригери TriPlanar/MeshBoolean (cabinet-специфіка);
- *   лишився тригер smartStretch (є в Bimini).
+ * - прибрано SSAO-proxy guard і MeshBoolean (cabinet-специфіка);
+ *   лишились тригери smartStretch + triPlanarMapping (є в Bimini).
  *
  * ПОДІЛ ВІДПОВІДАЛЬНОСТІ: сервіс = пошук asset-а, async-завантаження матеріалу
  * та його ресурсів (текстур), кеш, дедуплікація, застосування до meshInstances.
@@ -190,12 +190,37 @@ export class MaterialService {
     }
 
     /**
-     * Тригерить пов'язані скрипти після зміни матеріалу (Bimini: smartStretch).
+     * Тригерить пов'язані скрипти після зміни матеріалу.
      * @private
      */
     static _triggerRelatedScripts(entity) {
         if (typeof entity.script.smartStretch?.refreshMaterials === 'function') {
             entity.script.smartStretch.refreshMaterials();
         }
+
+        const triPlanar = MaterialService._getTriPlanarScript(entity);
+        if (!triPlanar) return;
+
+        if (typeof triPlanar.refreshMaterials === 'function') {
+            triPlanar.refreshMaterials();
+        } else if (typeof triPlanar.applyTriplanar === 'function') {
+            triPlanar.applyTriplanar();
+        } else if (typeof triPlanar.updateUniforms === 'function') {
+            triPlanar.updateUniforms();
+        }
+    }
+
+    /**
+     * PlayCanvas script name у проєкті може бути triPlanarMapping, але лишаємо
+     * fallback-и для старих експортів/референсних скриптів.
+     * @private
+     */
+    static _getTriPlanarScript(entity) {
+        return entity?.script?.triPlanarMapping
+            || entity?.script?.triplanarMapping
+            || entity?.script?.TriplanarMapping
+            || entity?.script?.triplanarMaterial
+            || entity?.script?.TriplanarMaterial
+            || null;
     }
 }
