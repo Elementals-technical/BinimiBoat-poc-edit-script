@@ -27,9 +27,9 @@ jobs:
           # Sync only Scripts folder to protect other files from deletion
           PLAYCANVAS_INCLUDE_REG: "Scripts/.*"
           PLAYCANVAS_FORCE_REG: "^Scripts\\/.*"
-          # Ignore system and config files
-          PLAYCANVAS_BAD_FILE_REG: "^\\.|~$|jsconfig|pcconfig|\\.yml$"
-          PLAYCANVAS_BAD_FOLDER_REG: "^\\.|node_modules"
+          # Ignore system and config files + docs (documentation must not reach PlayCanvas)
+          PLAYCANVAS_BAD_FILE_REG: "^\\.|~$|jsconfig|pcconfig|\\.yml$|\\.md$"
+          PLAYCANVAS_BAD_FOLDER_REG: "^\\.|node_modules|^docs$|^tools$"
           PLAYCANVAS_VERBOSE: 1
         run: |
           echo "🔍 Checking diff..."
