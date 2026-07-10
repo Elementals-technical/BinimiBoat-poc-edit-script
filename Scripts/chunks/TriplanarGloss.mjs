@@ -1,5 +1,6 @@
 const triplanarGlossChunk = `
 uniform sampler2D tri_glossTex;
+uniform float tri_hasGloss;
 uniform float tri_glossiness;
 uniform float tri_glossInvert;
 // --- COMMON LOGIC ---
@@ -44,6 +45,9 @@ uniform float tri_glossInvert;
 // =========================================================
 
 void getGlossiness() {
+    dGlossiness = 1.0;
+    dGlossiness *= tri_glossiness;
+
     vec3 offset = matrix_model[3].xyz;
     vec3 axisX = normalize(matrix_model[0].xyz);
     vec3 axisY = normalize(matrix_model[1].xyz);
@@ -71,17 +75,20 @@ void getGlossiness() {
     uvY = applyGrainFlip(uvY);
     uvZ = applyGrainFlip(uvZ);
 
-    float gX = texture2D(tri_glossTex, uvX).r;
-    float gY = texture2D(tri_glossTex, uvY).r;
-    float gZ = texture2D(tri_glossTex, uvZ).r;
+    if (tri_hasGloss > 0.5) {
+        float gX = texture2D(tri_glossTex, uvX).r;
+        float gY = texture2D(tri_glossTex, uvY).r;
+        float gZ = texture2D(tri_glossTex, uvZ).r;
 
-    float textureVal = gX * blend.x + gY * blend.y + gZ * blend.z;
-
-    if (tri_glossInvert > 0.5) {
-        textureVal = 1.0 - textureVal;
+        float textureVal = gX * blend.x + gY * blend.y + gZ * blend.z;
+        dGlossiness *= textureVal;
     }
 
-    dGlossiness = textureVal * tri_glossiness * 2.0;
+    if (tri_glossInvert > 0.5) {
+        dGlossiness = 1.0 - dGlossiness;
+    }
+
+    dGlossiness += 0.0000001;
 }
 `;
 

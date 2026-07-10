@@ -64,11 +64,11 @@ export class TriPlanarMapping extends Script {
   _overrideParams = false;
   _glossiness = 100.0;
   _bumpiness = 1.0;
-  _useTriplanarNormal = true;
-  _useTriplanarGloss = false;
 
   _dummyWhite = null;
   _dummyNormal = null;
+  _fallbackNormalMap = null;
+  _fallbackGlossMap = null;
 
   activeMaterials = [];
 
@@ -84,8 +84,6 @@ export class TriPlanarMapping extends Script {
     this.on("attr", () => this.updateUniforms());
     this.on("attr:aoMap", () => this.applyTriplanar());
     this.on("attr:detailNormalMap", () => this.applyTriplanar());
-    this.on("attr:useTriplanarNormal", () => this.applyTriplanar());
-    this.on("attr:useTriplanarGloss", () => this.applyTriplanar());
 
     if (this.activeMaterials.length === 0) this.ensureModelReady();
   }
@@ -177,30 +175,6 @@ export class TriPlanarMapping extends Script {
     if (this._overrideParams) this.updateUniforms();
   }
 
-  /** @attribute
-   * @title Triplanar Normal
-   * @type {boolean}
-   * */
-  get useTriplanarNormal() {
-    return this._useTriplanarNormal;
-  }
-  set useTriplanarNormal(value) {
-    this._useTriplanarNormal = value;
-    this.applyTriplanar();
-  }
-
-  /** @attribute
-   * @title Triplanar Gloss
-   * @type {boolean}
-   * */
-  get useTriplanarGloss() {
-    return this._useTriplanarGloss;
-  }
-  set useTriplanarGloss(value) {
-    this._useTriplanarGloss = value;
-    this.applyTriplanar();
-  }
-
   ensureModelReady() {
     const onLoaded = () => this.applyTriplanar();
     if (this.entity.model && !this.entity.model.model) {
@@ -260,17 +234,27 @@ export class TriPlanarMapping extends Script {
   }
 
   getGlossMap(material) {
+    const sourceMaterial = material?._triPlanarSourceMaterial;
     return (
       this.resolveTexture(material.glossMap) ||
       this.resolveTexture(material._assetReferences?.glossMap?.asset) ||
+      (sourceMaterial && sourceMaterial !== material
+        ? this.resolveTexture(sourceMaterial.glossMap) ||
+          this.resolveTexture(sourceMaterial._assetReferences?.glossMap?.asset)
+        : null) ||
       null
     );
   }
 
   getNormalMap(material) {
+    const sourceMaterial = material?._triPlanarSourceMaterial;
     return (
       this.resolveTexture(material.normalMap) ||
       this.resolveTexture(material._assetReferences?.normalMap?.asset) ||
+      (sourceMaterial && sourceMaterial !== material
+        ? this.resolveTexture(sourceMaterial.normalMap) ||
+          this.resolveTexture(sourceMaterial._assetReferences?.normalMap?.asset)
+        : null) ||
       null
     );
   }
@@ -336,8 +320,9 @@ export class TriPlanarMapping extends Script {
 
       let finalMat;
       if (this.makeUnique) {
-        if (materialCache.has(sourceMat.id)) {
-          finalMat = materialCache.get(sourceMat.id);
+        const cacheKey = sourceMat.id ?? sourceMat;
+        if (materialCache.has(cacheKey)) {
+          finalMat = materialCache.get(cacheKey);
         } else {
           if (sourceMat.name.includes("_triplanar_unique")) {
             finalMat = sourceMat;
@@ -345,11 +330,13 @@ export class TriPlanarMapping extends Script {
             finalMat = sourceMat.clone();
             finalMat.name = sourceMat.name + "_triplanar_unique";
           }
-          materialCache.set(sourceMat.id, finalMat);
+          materialCache.set(cacheKey, finalMat);
         }
+        finalMat._triPlanarSourceMaterial = sourceMat;
         mesh.material = finalMat;
       } else {
         finalMat = sourceMat;
+        finalMat._triPlanarSourceMaterial = sourceMat;
       }
 
       this.setupMaterial(finalMat);
@@ -364,16 +351,20 @@ export class TriPlanarMapping extends Script {
     const initialNormalMap = this.getNormalMap(material);
     const initialGlossMap = this.getGlossMap(material);
     const hasInitialDetailNormal = this.detailNormalMap && this.detailNormalMap.resource;
+    const normalMapForSetup = initialNormalMap || this._fallbackNormalMap;
+
+    if (initialNormalMap) this._fallbackNormalMap = initialNormalMap;
+    if (initialGlossMap) this._fallbackGlossMap = initialGlossMap;
 
     if (diffuseChunk) {
       material.chunks.diffusePS = diffuseChunk;
     }
-    if (this.useTriplanarNormal && normalChunk && (initialNormalMap || hasInitialDetailNormal)) {
+    if (normalChunk && (normalMapForSetup || hasInitialDetailNormal)) {
       material.chunks.normalMapPS = normalChunk;
     } else {
       delete material.chunks.normalMapPS;
     }
-    if (this.useTriplanarGloss && glossChunk && initialGlossMap) {
+    if (glossChunk) {
       material.chunks.glossPS = glossChunk;
     } else {
       delete material.chunks.glossPS;
@@ -395,13 +386,13 @@ export class TriPlanarMapping extends Script {
     material.setParameter("tri_hasDiffuse", hasDiffuse);
 
     if (normalChunk) {
-      const normalMap = this.getNormalMap(material);
+      const normalMap = this.getNormalMap(material) || this._fallbackNormalMap;
       material.setParameter("tri_normalTex", normalMap || this.dummyNormal);
       material.setParameter("tri_hasNormal", normalMap ? 1.0 : 0.0);
     }
 
     if (glossChunk) {
-      const glossMap = this.getGlossMap(material);
+      const glossMap = this.getGlossMap(material) || this._fallbackGlossMap;
       material.setParameter("tri_glossTex", glossMap || this.dummyWhite);
       material.setParameter("tri_hasGloss", glossMap ? 1.0 : 0.0);
     }
@@ -454,11 +445,11 @@ export class TriPlanarMapping extends Script {
     const invertVal = !this._overrideParams && material.glossInvert ? 1.0 : 0.0;
     material.setParameter("tri_glossInvert", invertVal);
 
-    const normalMap = this.getNormalMap(material);
+    const normalMap = this.getNormalMap(material) || this._fallbackNormalMap;
     material.setParameter("tri_normalTex", normalMap || this.dummyNormal);
     material.setParameter("tri_hasNormal", normalMap ? 1.0 : 0.0);
 
-    const glossMap = this.getGlossMap(material);
+    const glossMap = this.getGlossMap(material) || this._fallbackGlossMap;
     material.setParameter("tri_glossTex", glossMap || this.dummyWhite);
     material.setParameter("tri_hasGloss", glossMap ? 1.0 : 0.0);
 
