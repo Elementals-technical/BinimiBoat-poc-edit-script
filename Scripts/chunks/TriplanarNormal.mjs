@@ -1,5 +1,6 @@
 const triplanarNormalChunk = `
 uniform sampler2D tri_normalTex;
+uniform float tri_hasNormal;
 uniform float tri_bumpiness;
 
 uniform sampler2D tri_detailNormalTex;
@@ -54,6 +55,24 @@ vec3 triUnpack(vec4 n) {
     return n.rgb * 2.0 - 1.0;
 }
 
+float triSign(float v) {
+    return v < 0.0 ? -1.0 : 1.0;
+}
+
+vec3 blendNormals(vec3 n1, vec3 n2) {
+    n1 += vec3(0.0, 0.0, 1.0);
+    n2 *= vec3(-1.0, -1.0, 1.0);
+    return n1 * dot(n1, n2) / n1.z - n2;
+}
+
+vec3 triToWorld(vec3 tangentNormal, vec3 tangentAxis, vec3 bitangentAxis, vec3 normalAxis) {
+    return normalize(
+        tangentAxis * tangentNormal.x +
+        bitangentAxis * tangentNormal.y +
+        normalAxis * tangentNormal.z
+    );
+}
+
 void getNormal() {
     vec3 offset = matrix_model[3].xyz;
     vec3 axisX = normalize(matrix_model[0].xyz);
@@ -62,7 +81,7 @@ void getNormal() {
     mat3 rotationMatrix = mat3(axisX, axisY, axisZ);
     vec3 localPos = (vPositionW - offset) * rotationMatrix;
 
-    vec3 worldNormal = normalize(vNormalW);
+    vec3 worldNormal = normalize(dVertexNormalW);
     vec3 localNormal = normalize(worldNormal * rotationMatrix);
     vec3 blend = vec3(abs(localNormal.x), abs(localNormal.y), abs(localNormal.z));
     blend /= (dot(blend, vec3(1.0)) + 0.0001);
@@ -73,26 +92,24 @@ void getNormal() {
     vec2 uvY = -vec2(localPos.x, localPos.z) / sX;
     vec2 uvZ = -vec2(localPos.x, localPos.y) / sX;
 
-    vec2 r_uvX = rotateUV(uvX, tri_rotation);
-    vec2 r_uvY = rotateUV(uvY, tri_rotation);
-    vec2 r_uvZ = rotateUV(uvZ, tri_rotation);
+    vec2 r_uvX = applyGrainFlip(rotateUV(uvX, tri_rotation));
+    vec2 r_uvY = applyGrainFlip(rotateUV(uvY, tri_rotation));
+    vec2 r_uvZ = applyGrainFlip(rotateUV(uvZ, tri_rotation));
 
-    // — GRAIN FLIP
-    r_uvX = applyGrainFlip(r_uvX);
-    r_uvY = applyGrainFlip(r_uvY);
-    r_uvZ = applyGrainFlip(r_uvZ);
+    vec3 flatNormal = vec3(0.0, 0.0, 1.0);
+    vec3 nX = flatNormal;
+    vec3 nY = flatNormal;
+    vec3 nZ = flatNormal;
 
-    vec3 nX = triUnpack(texture2D(tri_normalTex, r_uvX));
-    nX = vec3(nX.z, nX.y, nX.x); 
-    vec3 nY = triUnpack(texture2D(tri_normalTex, r_uvY));
-    nY = vec3(nY.x, nY.z, nY.y);
-    vec3 nZ = triUnpack(texture2D(tri_normalTex, r_uvZ));
-    nZ = vec3(nZ.x, nZ.y, nZ.z);
+    if (tri_hasNormal > 0.5) {
+        nX = triUnpack(texture2D(tri_normalTex, r_uvX));
+        nY = triUnpack(texture2D(tri_normalTex, r_uvY));
+        nZ = triUnpack(texture2D(tri_normalTex, r_uvZ));
 
-    vec3 mainNormal = nX * blend.x + nY * blend.y + nZ * blend.z;
-    mainNormal.xy *= tri_bumpiness;
-
-    vec3 detailNormal = vec3(0.0);
+        nX = normalize(mix(flatNormal, nX, tri_bumpiness));
+        nY = normalize(mix(flatNormal, nY, tri_bumpiness));
+        nZ = normalize(mix(flatNormal, nZ, tri_bumpiness));
+    }
     
     if (tri_hasDetailNormal > 0.5) {
         vec2 dUVX = r_uvX * tri_detailTiling;
@@ -100,21 +117,23 @@ void getNormal() {
         vec2 dUVZ = r_uvZ * tri_detailTiling;
 
         vec3 dnX = triUnpack(texture2D(tri_detailNormalTex, dUVX));
-        dnX = vec3(dnX.z, dnX.y, dnX.x); 
-
         vec3 dnY = triUnpack(texture2D(tri_detailNormalTex, dUVY));
-        dnY = vec3(dnY.x, dnY.z, dnY.y);
-
         vec3 dnZ = triUnpack(texture2D(tri_detailNormalTex, dUVZ));
-        dnZ = vec3(dnZ.x, dnZ.y, dnZ.z);
 
-        vec3 combinedDetail = dnX * blend.x + dnY * blend.y + dnZ * blend.z;
-        combinedDetail.xy *= tri_detailBumpiness;
-        
-        detailNormal = combinedDetail;
+        dnX = normalize(mix(flatNormal, dnX, tri_detailBumpiness));
+        dnY = normalize(mix(flatNormal, dnY, tri_detailBumpiness));
+        dnZ = normalize(mix(flatNormal, dnZ, tri_detailBumpiness));
+
+        nX = normalize(blendNormals(nX, dnX));
+        nY = normalize(blendNormals(nY, dnY));
+        nZ = normalize(blendNormals(nZ, dnZ));
     }
 
-    dNormalW = normalize(worldNormal + mainNormal + detailNormal);
+    vec3 wX = triToWorld(nX, axisZ, axisY, axisX * triSign(localNormal.x));
+    vec3 wY = triToWorld(nY, axisX, axisZ, axisY * triSign(localNormal.y));
+    vec3 wZ = triToWorld(nZ, axisX, axisY, axisZ * triSign(localNormal.z));
+
+    dNormalW = normalize(wX * blend.x + wY * blend.y + wZ * blend.z);
 }
 `;
 

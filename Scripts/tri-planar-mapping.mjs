@@ -64,7 +64,7 @@ export class TriPlanarMapping extends Script {
   _overrideParams = false;
   _glossiness = 100.0;
   _bumpiness = 1.0;
-  _useTriplanarNormal = false;
+  _useTriplanarNormal = true;
   _useTriplanarGloss = false;
 
   _dummyWhite = null;
