@@ -259,6 +259,19 @@ export class TriPlanarMapping extends Script {
     );
   }
 
+  getLightMap(material) {
+    const sourceMaterial = material?._triPlanarSourceMaterial;
+    return (
+      this.resolveTexture(material.lightMap) ||
+      this.resolveTexture(material._assetReferences?.lightMap?.asset) ||
+      (sourceMaterial && sourceMaterial !== material
+        ? this.resolveTexture(sourceMaterial.lightMap) ||
+          this.resolveTexture(sourceMaterial._assetReferences?.lightMap?.asset)
+        : null) ||
+      null
+    );
+  }
+
   getMaterialGlossiness(material) {
     if (this._overrideParams) return this._glossiness / 100.0;
     if (typeof material.gloss === "number") return material.gloss;
@@ -319,7 +332,12 @@ export class TriPlanarMapping extends Script {
       }
 
       let finalMat;
-      if (this.makeUnique) {
+      const needsLightMapOverride =
+        !!this.getLightMap(sourceMat) ||
+        (!!sourceMat._triPlanarSourceMaterial &&
+          !!this.getLightMap(sourceMat._triPlanarSourceMaterial));
+
+      if (this.makeUnique || needsLightMapOverride) {
         const cacheKey = sourceMat.id ?? sourceMat;
         if (materialCache.has(cacheKey)) {
           finalMat = materialCache.get(cacheKey);
@@ -359,6 +377,17 @@ export class TriPlanarMapping extends Script {
     if (diffuseChunk) {
       material.chunks.diffusePS = diffuseChunk;
     }
+
+    const lightMap = this.getLightMap(material);
+    if (lightMap) {
+      material.setParameter("tri_lightMapTex", lightMap);
+      material.setParameter("tri_hasLightMap", 1.0);
+      material.lightMap = null;
+    } else {
+      material.setParameter("tri_lightMapTex", this.dummyWhite);
+      material.setParameter("tri_hasLightMap", 0.0);
+    }
+
     if (normalChunk && (normalMapForSetup || hasInitialDetailNormal)) {
       material.chunks.normalMapPS = normalChunk;
     } else {
@@ -439,6 +468,10 @@ export class TriPlanarMapping extends Script {
 
     material.setParameter("tri_scale", size);
     material.setParameter("tri_rotation", rad);
+
+    const lightMap = this.getLightMap(material);
+    material.setParameter("tri_lightMapTex", lightMap || this.dummyWhite);
+    material.setParameter("tri_hasLightMap", lightMap ? 1.0 : 0.0);
 
     material.setParameter("tri_bumpiness", this.getMaterialBumpiness(material));
     material.setParameter("tri_glossiness", this.getMaterialGlossiness(material));

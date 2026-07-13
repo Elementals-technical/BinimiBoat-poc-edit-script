@@ -2,6 +2,9 @@ const triplanarDiffuseChunk = `
 uniform sampler2D tri_diffuseTex;
 uniform float tri_hasDiffuse;
 
+uniform sampler2D tri_lightMapTex;
+uniform float tri_hasLightMap;
+
 uniform sampler2D tri_aoTex;
 uniform float tri_hasAO;
 uniform float tri_aoIntensity;
@@ -106,6 +109,15 @@ void getAlbedo() {
         float finalAO = mix(1.0, combinedAO, tri_aoIntensity);
 
         dAlbedo *= vec3(finalAO);
+    }
+
+    if (tri_hasLightMap > 0.5) {
+        vec3 lmX = texture2D(tri_lightMapTex, r_uvX).rgb;
+        vec3 lmY = texture2D(tri_lightMapTex, r_uvY).rgb;
+        vec3 lmZ = texture2D(tri_lightMapTex, r_uvZ).rgb;
+
+        vec3 triLightMap = lmX * blend.x + lmY * blend.y + lmZ * blend.z;
+        dAlbedo *= triLightMap;
     }
 }
 `;
