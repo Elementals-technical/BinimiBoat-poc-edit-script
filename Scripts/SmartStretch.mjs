@@ -143,14 +143,14 @@ export class SmartStretch extends Script {
     _processAxis(val, amount, margin) {
         if (Math.abs(amount) < 0.0001) return val;
 
-        const halfStretch = amount * 0.5;
+        const stretch = amount;
 
         if (val > margin) {
-            return val + halfStretch;
+            return val + stretch;
         } else if (val < -margin) {
-            return val - halfStretch;
+            return val - stretch;
         } else {
-             const scale = (margin + halfStretch) / (margin > 0.001 ? margin : 0.001);
+             const scale = (margin + stretch) / (margin > 0.001 ? margin : 0.001);
              return val * scale;
         }
     }

@@ -63,7 +63,7 @@ const BIMINI_PARAMETRIC_BINDINGS = {
             },
             {
               "at": 384,
-              "value": 5.4864
+              "value": 2.7432
             }
           ],
           "note": "FIX ×2 (не з Rules1): SmartStretch росте на ±amount/2 від pivot; деко-меші лежать по обидва боки pivot (Z -5..+2 / -2..+5), тож для розльоту країв ±D (синхронно з fence +D та engine -D) amount = 2D."
@@ -87,7 +87,7 @@ const BIMINI_PARAMETRIC_BINDINGS = {
             },
             {
               "at": 335,
-              "value": -3.0353
+              "value": -6.0706
             }
           ],
           "note": "FIX hierarchy: Rules1 also lists round/square back variant children, but they are descendants of boat_fence_back. Moving both parent and children doubles the visible back-wall offset; variants inherit this parent move."
@@ -129,7 +129,7 @@ const BIMINI_PARAMETRIC_BINDINGS = {
             },
             {
               "at": 335,
-              "value": 1.51765
+              "value": 3.0353
             }
           ]
         }
