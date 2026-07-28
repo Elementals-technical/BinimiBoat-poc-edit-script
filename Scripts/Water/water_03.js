@@ -1,24 +1,5 @@
 var Water = pc.createScript('water');
 
-function normalizeWaterUniformDeclarations(source) {
-    return source.replace(
-        /^(\s*)uniform\s+((?:(?:lowp|mediump|highp)\s+)?[A-Za-z_]\w*)\s+([^;\r\n]+);/gm,
-        function(match, indentation, type, declarations) {
-            const names = declarations.split(',');
-
-            if (names.length === 1) {
-                return match;
-            }
-
-            return names
-                .map(function(name) {
-                    return `${indentation}uniform ${type} ${name.trim()};`;
-                })
-                .join('\n');
-        }
-    );
-}
-
 Water.prototype.initialize = function() {
     const self = this;
 
@@ -29,18 +10,14 @@ Water.prototype.initialize = function() {
     const shaderTime = app.graphicsDevice.scope.resolve("globalTime");
     const reflectionCamera = app.root.findByName('Reflection Camera');
     const mainCamera = app.root.findByName('Main Camera');
-    // PlayCanvas' shader processor requires each uniform to have its own
-    // declaration. Normalize legacy comma-separated declarations in waterPS
-    // before passing the source to ShaderMaterial.
-    const frag = normalizeWaterUniformDeclarations(
-        app.assets.find('waterPS', 'shader').resource
-    );
+    const frag = app.assets.find('waterPS', 'shader').resource;
     let material;
 
     let rt, rtBlur, rtBlurH, rtNormal, rtNormal2, normalShader, normalShader2;
     let planeAW, planeBW, planeCW, planeDW;
     let planeAV, planeBV, planeCV, planeDV;
     let world2refl;
+    let removeReflectionCameraHooks = null;
 
     let time = 0;
 
@@ -68,12 +45,15 @@ Water.prototype.initialize = function() {
 
 
     device.on('resizecanvas', updateRenderTargets);
+    self.on('destroy', destroy);
 
 
     // ---------------------------------------------------------------------------------------
 
 
     function update(dt) {
+        _syncReflectionCameraProperties();
+
         time += dt;
         shaderTime.setValue(time);
 
@@ -85,6 +65,17 @@ Water.prototype.initialize = function() {
         _clearOldTargets();
         _updateMaterial();
         _updateReflectionCamera();
+    }
+
+    function destroy() {
+        device.off('resizecanvas', updateRenderTargets);
+
+        if (removeReflectionCameraHooks) {
+            removeReflectionCameraHooks();
+            removeReflectionCameraHooks = null;
+        }
+
+        _clearOldTargets();
     }
 
 
@@ -238,7 +229,27 @@ Water.prototype.initialize = function() {
         return texture;
     }
 
+    function _syncReflectionCameraProperties() {
+        const source = mainCamera.camera;
+        const target = reflectionCamera.camera;
+
+        target.projection = source.projection;
+        target.fov = source.fov;
+        target.horizontalFov = source.horizontalFov;
+        target.orthoHeight = source.orthoHeight;
+        target.nearClip = source.nearClip;
+        target.farClip = source.farClip;
+        target.aperture = source.aperture;
+        target.sensitivity = source.sensitivity;
+        target.shutter = source.shutter;
+    }
+
     function _updateReflectionCamera() {
+        if (removeReflectionCameraHooks) {
+            removeReflectionCameraHooks();
+            removeReflectionCameraHooks = null;
+        }
+
         const tex = rt.colorBuffer;
         
         // Get shader chunks
@@ -266,31 +277,31 @@ Water.prototype.initialize = function() {
         planeDW = -0.1;
         planePosW.set(planeAW*planeDW, planeBW*planeDW, planeCW*planeDW);
         planeNormalW.set(planeAW, planeBW, planeCW);
-        
-        cam.renderTarget = rt;
-        
-        app.scene.on(pc.EVENT_PRERENDER, () => {
-            cam.calculateTransform = _customTransformFunc;
-            cam.calculateProjection = _customProjFunc;
-            cam.cullFaces = false;
-            // debugger
-            // self.app.renderer.updateCameraFrustum(cam.camera);
-        });
 
-        let dirty = true;
-        app.scene.on(pc.EVENT_POSTRENDER, () => {
+        _syncReflectionCameraProperties();
+        cam.renderTarget = rt;
+        cam.calculateTransform = _customTransformFunc;
+        cam.calculateProjection = _customProjFunc;
+        cam.cullFaces = true;
+        cam.flipFaces = true;
+
+        const postRender = (cameraComponent) => {
+            if (cameraComponent !== cam) {
+                return;
+            }
+
             constantSource.setValue(rt.colorBuffer);
             constantOffset.setValue(new Float32Array([ pixelOffsetH.x, pixelOffsetH.y ]));
             pc.drawQuadWithShader(device, rtBlurH, blurShader);
             constantSource.setValue(rtBlurH.colorBuffer);
             constantOffset.setValue(new Float32Array([ pixelOffsetV.x, pixelOffsetV.y ]));
             pc.drawQuadWithShader(device, rtBlur, blurShader);
+        };
 
-            if (dirty) {
-                dirty = false;
-                cam.camera.copy(mainCamera.camera.camera);
-            }
-        });
+        const postRenderHandle = app.scene.on(pc.EVENT_POSTRENDER, postRender);
+        removeReflectionCameraHooks = () => {
+            postRenderHandle.off();
+        };
     }
 
     function _reflectionMatrix(a,b,c,d) {
@@ -342,7 +353,7 @@ Water.prototype.initialize = function() {
             mat.setPerspective(cam.fov, cam.aspectRatio, cam.nearClip, cam.farClip, cam.horizontalFov);
         } else {
             const y = cam.orthoHeight;
-            const x = y * cam.aspect;
+            const x = y * cam.aspectRatio;
             mat.setOrtho(-x, x, -y, y, cam.nearClip, cam.farClip);
         }
         

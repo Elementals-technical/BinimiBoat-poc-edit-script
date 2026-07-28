@@ -4,10 +4,15 @@ varying vec3 vPositionW;
 
 #define UVSCALE 4.0
 
-uniform float globalTime, waterHeight;
+uniform float globalTime;
+uniform float waterHeight;
 uniform vec3 view_position;
 uniform samplerCube waterSkyTexture;
-uniform sampler2D waterReflTex, waterReflTexBlur, waterNormalTex, waterNormalTex2, noiseTex;
+uniform sampler2D waterReflTex;
+uniform sampler2D waterReflTexBlur;
+uniform sampler2D waterNormalTex;
+uniform sampler2D waterNormalTex2;
+uniform sampler2D noiseTex;
 uniform mat4 matrix_viewProjection;
 uniform float uvOffsetAmount;
 
@@ -148,4 +153,3 @@ void main() {
 
     gl_FragColor = vec4(color, depthDiff);
 }
-
