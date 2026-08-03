@@ -5,6 +5,7 @@ import { RuleFenceWidth } from '../rules/boat/RuleFenceWidth.mjs';
 import { RuleFrontIndent } from '../rules/boat/RuleFrontIndent.mjs';
 import { RuleFenceType } from '../rules/boat/RuleFenceType.mjs';
 import { RuleBoatMaterial } from '../rules/boat/RuleBoatMaterial.mjs';
+import { RuleFurniturePresetLayout } from '../rules/boat/RuleFurniturePresetLayout.mjs';
 import { RuleFurnitureColor } from '../rules/furniture/RuleFurnitureColor.mjs';
 import { RuleFurnitureVariant } from '../rules/furniture/RuleFurnitureVariant.mjs';
 import { defaultsForRole } from '../attributes/attributes-catalog.mjs';
@@ -19,7 +20,7 @@ export class ProductConfigLoader {
             role: 'platform-parametric',
             category: 'boat',
             rules: [RuleDeckLength, RuleDeckWidth, RuleFenceLength, RuleFenceWidth, RuleFrontIndent,
-                    RuleFenceType, RuleBoatMaterial],
+                    RuleFenceType, RuleBoatMaterial, RuleFurniturePresetLayout],
             defaultConfig: { role: 'platform-parametric', type: 'Boat', ...defaultsForRole('platform-parametric', 'Boat') }
         });
 

@@ -12,8 +12,18 @@
  */
 
 export const BOAT_ATTRIBUTES = {
+    LayoutRockportSeries: {
+        key: 'LayoutRockportSeries', label: 'Layout Rockport Series', type: 'enum', default: 'none',
+        values: [
+            { label: 'No Selection', value: 'none' },
+            { label: 'Lounger Kit', value: 'lounger-kit' },
+            { label: 'Cruiser Kit', value: 'cruiser-kit' },
+            { label: 'Voyager Kit', value: 'voyager-kit' },
+            { label: 'Explorer Kit', value: 'explorer-kit' }
+        ]
+    },
     FenceTypeFront: {
-        key: 'FenceTypeFront', label: 'Fence Type Front', type: 'enum',
+        key: 'FenceTypeFront', label: 'Fence Type Front', type: 'enum', default: 'round_fence_front',
         values: [
             { label: 'Square fence',   value: 'square_fence_front' },
             { label: 'Round fence',    value: 'round_fence_front' },
@@ -21,16 +31,16 @@ export const BOAT_ATTRIBUTES = {
         ]
     },
     FenceTypeBack: {
-        key: 'FenceTypeBack', label: 'Fence Type Back', type: 'enum',
+        key: 'FenceTypeBack', label: 'Fence Type Back', type: 'enum', default: 'round_fence_back',
         values: [
             { label: 'Square fence',   value: 'square_fence_back' },
             { label: 'Round fence',    value: 'round_fence_back' },
             { label: 'Round fence 36', value: 'round_fence_36_back' }
         ]
     },
-    DeckLength:  { key: 'DeckLength',  label: 'Deck Length',  type: 'number', min: 168, step: 1, max: 384, default: 168 },
-    FenceLength: { key: 'FenceLength', label: 'Fence Length', type: 'number', min: 96,  step: 1, max: 335, default: 96 },
-    FenceWidth:  { key: 'FenceWidth',  label: 'Fence Width',  type: 'number', min: 86,  step: 1, max: 100, default: 86 },
+    DeckLength:  { key: 'DeckLength',  label: 'Deck Length',  type: 'number', min: 168, step: 1, max: 384, default: 240 },
+    FenceLength: { key: 'FenceLength', label: 'Fence Length', type: 'number', min: 96,  step: 1, max: 335, default: 216 },
+    FenceWidth:  { key: 'FenceWidth',  label: 'Fence Width',  type: 'number', min: 86,  step: 1, max: 100, default: 90 },
     FrontIndent: { key: 'FrontIndent', label: 'Front Indent', type: 'number', min: 0,   step: 1, max: 48,  default: 0 },
     DeckWidth:   { key: 'DeckWidth',   label: 'Deck Width',   type: 'number', min: 96,  step: 6, max: 102, default: 96 },
     DeckColor: {
