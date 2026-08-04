@@ -49,6 +49,7 @@ export class PresetFurnitureService {
             const lengthAnchor = override.lengthAnchor || common.lengthAnchor;
             const widthAnchor = override.widthAnchor || common.widthAnchor;
             const x = base.x
+                + offsets.deckLength
                 + (lengthAnchor === 'back' ? offsets.backLength : offsets.frontLength)
                 + offsets.frontIndent;
             const z = base.z
