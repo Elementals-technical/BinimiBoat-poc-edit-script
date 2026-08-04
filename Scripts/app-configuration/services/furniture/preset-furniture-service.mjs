@@ -1,7 +1,8 @@
 import { LoggerService } from '../logger/logger-service.mjs';
 import { SceneEntityHelper } from '../../helpers/scene-entity-helper.mjs';
 
-const CLONE_MARKER = '__presetFurnitureClone';
+export const PRESET_FURNITURE_CLONE_MARKER = '__presetFurnitureClone';
+export const PRESET_FURNITURE_TEMPLATE = '__presetFurnitureTemplate';
 
 /** Manages preset furniture clones and the four dimension-driven anchor groups. */
 export class PresetFurnitureService {
@@ -33,7 +34,7 @@ export class PresetFurnitureService {
 
     clearClones() {
         for (const group of this.groups.values()) {
-            const clones = [...group.children].filter(child => child[CLONE_MARKER] === true);
+            const clones = [...group.children].filter(child => child[PRESET_FURNITURE_CLONE_MARKER] === true);
             for (const clone of clones) clone.destroy();
         }
     }
@@ -114,7 +115,8 @@ export class PresetFurnitureService {
             stage = 'prepare';
             clone.enabled = false;
             clone.name = `${layoutKey}__${definition.group}__${definition.template}__${definition.id}`;
-            clone[CLONE_MARKER] = true;
+            clone[PRESET_FURNITURE_CLONE_MARKER] = true;
+            clone[PRESET_FURNITURE_TEMPLATE] = definition.template;
             stage = 'attach';
             group.addChild(clone);
             stage = 'transform';

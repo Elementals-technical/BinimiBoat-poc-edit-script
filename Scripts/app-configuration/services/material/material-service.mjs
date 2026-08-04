@@ -32,6 +32,10 @@ export class MaterialService {
     /** @type {Map<string, Promise<object>>} Pending завантаження (дедуплікація) */
     static _pending = new Map();
 
+    static _textureCache = new Map();
+
+    static _variantCache = new Map();
+
     /**
      * Ініціалізація сервісу. Викликати один раз при старті (SceneManager).
      * @param {import('playcanvas').Application} app
@@ -79,6 +83,75 @@ export class MaterialService {
         return appliedCount;
     }
 
+    /** Loads a texture asset by its exact PlayCanvas asset name. */
+    static loadTexture(textureName) {
+        if (!textureName) return Promise.resolve(null);
+        if (MaterialService._textureCache.has(textureName)) {
+            return Promise.resolve(MaterialService._textureCache.get(textureName));
+        }
+        const app = MaterialService._getApp();
+        if (!app) return Promise.reject(new Error('MaterialService: app not set'));
+        const asset = MaterialService._findTextureAsset(textureName);
+        if (!asset) return Promise.reject(new Error(`Texture asset not found: "${textureName}"`));
+        return new Promise((resolve, reject) => {
+            const settle = () => {
+                if (!asset.resource) return reject(new Error(`Texture loaded but resource is null: "${textureName}"`));
+                MaterialService._textureCache.set(textureName, asset.resource);
+                resolve(asset.resource);
+            };
+            if (asset.resource) { settle(); return; }
+            asset.ready(settle);
+            asset.once('error', reject);
+            app.assets.load(asset);
+        });
+    }
+
+    /** Returns an isolated material variant with the requested ambient-occlusion texture. */
+    static async loadMaterialWithAo(materialName, textureName) {
+        if (!textureName) return MaterialService.loadMaterial(materialName);
+        const key = `${materialName}\u0000${textureName}`;
+        if (MaterialService._variantCache.has(key)) return MaterialService._variantCache.get(key);
+        // Load the material first. Missing optional AO must never prevent the
+        // requested color material from being applied to the furniture node.
+        const source = await MaterialService.loadMaterial(materialName);
+        let texture;
+        try {
+            texture = await MaterialService.loadTexture(textureName);
+        } catch (error) {
+            LoggerService.warn(null,
+                `[MaterialService] Optional AO "${textureName}" unavailable for "${materialName}":`,
+                error?.message || error);
+            return source;
+        }
+        const variant = source.clone();
+        variant.name = `${source.name || materialName} [AO: ${textureName}]`;
+        variant.aoMap = texture;
+        variant.update();
+        MaterialService._variantCache.set(key, variant);
+        return variant;
+    }
+
+    /** @private */
+    static _findTextureAsset(textureName) {
+        const app = MaterialService._getApp();
+        const exact = app?.assets?.find(textureName, 'texture');
+        if (exact) return exact;
+
+        // Spreadsheet values can be either Editor asset names or source
+        // filenames. Compare both forms, ignoring path, case and extension.
+        const normalize = value => String(value || '')
+            .replace(/\\/g, '/')
+            .split('/').pop()
+            .replace(/\.[^.]+$/, '')
+            .toLowerCase();
+        const wanted = normalize(textureName);
+        return app?.assets?.list?.().find(asset => asset.type === 'texture' && (
+            normalize(asset.name) === wanted
+            || normalize(asset.file?.filename) === wanted
+            || normalize(asset.file?.url) === wanted
+        )) || null;
+    }
+
     /**
      * Застосовує вже завантажений матеріал до entity (render + legacy model).
      * @param {object} entity
@@ -116,8 +189,16 @@ export class MaterialService {
      * @param {string} [materialName]
      */
     static clearCache(materialName) {
-        if (materialName) MaterialService._cache.delete(materialName);
-        else MaterialService._cache.clear();
+        if (materialName) {
+            MaterialService._cache.delete(materialName);
+            for (const key of MaterialService._variantCache.keys()) {
+                if (key.startsWith(`${materialName}\u0000`)) MaterialService._variantCache.delete(key);
+            }
+        } else {
+            MaterialService._cache.clear();
+            MaterialService._textureCache.clear();
+            MaterialService._variantCache.clear();
+        }
     }
 
     // ═══════════════════════════════════════════════════════════
