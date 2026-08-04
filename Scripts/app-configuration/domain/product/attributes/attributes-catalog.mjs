@@ -22,6 +22,13 @@ export const BOAT_ATTRIBUTES = {
             { label: 'Explorer Kit', value: 'explorer-kit' }
         ]
     },
+    RockportFurnitureColor: {
+        key: 'RockportFurnitureColor', label: 'Rockport Furniture Color', type: 'enum', default: 'Grey',
+        values: [
+            { label: 'Grey', value: 'Grey' },
+            { label: 'Beige', value: 'Beige' }
+        ]
+    },
     FenceTypeFront: {
         key: 'FenceTypeFront', label: 'Fence Type Front', type: 'enum', default: 'round_fence_front',
         values: [
