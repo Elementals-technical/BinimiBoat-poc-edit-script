@@ -14,8 +14,8 @@ const ROCKPORT_FURNITURE_MATERIALS = {
         row('Chaise_Base', 'Base Gray Main', 'Base Beige Main', 'ChaiseLoungeLeft_Right_AO'),
         row('Chaise_Fabric', 'Fabric Gray Main', 'Fabric Beige Main', 'ChaiseLoungeLeft_Right_AO'),
         row('Chaise_Leather', 'Leather Gray Main', 'Leather Beige Main', 'ChaiseLoungeLeft_Right_AO'),
-        row('Chaise_Metal', 'Chrome Main', 'Metal Beige Main', 'ChaiseLoungeLeft_Right_AO'),
-        row('Chaise_Metal_Chrome', 'Chrome Main', 'Chrome Dark Main', 'ChaiseLoungeLeft_Right_AO'),
+        row('Chaise_Metal', 'Chrome Main', 'Metal Beige Main'),
+        row('Chaise_Metal_Chrome', 'Chrome Main', 'Chrome Dark Main'),
         row('Chaise_Stitches', 'Stitch Gray Main', 'Stitch Beige Main'),
         row('Chaise_Tape', 'Tape Gray Main', 'Tape Beige Main')
     ],
@@ -23,8 +23,8 @@ const ROCKPORT_FURNITURE_MATERIALS = {
         row('Chaise_Base', 'Base Gray Main', 'Base Beige Main', 'ChaiseLoungeLeft_Right_AO'),
         row('Chaise_Fabric', 'Fabric Gray Main', 'Fabric Beige Main', 'ChaiseLoungeLeft_Right_AO'),
         row('Chaise_Leather', 'Leather Gray Main', 'Leather Beige Main', 'ChaiseLoungeLeft_Right_AO'),
-        row('Chaise_Metal', 'Chrome Main', 'Metal Beige Main', 'ChaiseLoungeLeft_Right_AO'),
-        row('Chaise_Metal_Chrome', 'Chrome Main', 'Chrome Dark Main', 'ChaiseLoungeLeft_Right_AO'),
+        row('Chaise_Metal', 'Chrome Main', 'Metal Beige Main'),
+        row('Chaise_Metal_Chrome', 'Chrome Main', 'Chrome Dark Main'),
         row('Chaise_Stitches', 'Stitch Gray Main', 'Stitch Beige Main'),
         row('Chaise_Tape', 'Tape Gray Main', 'Tape Beige Main')
     ],
@@ -38,10 +38,10 @@ const ROCKPORT_FURNITURE_MATERIALS = {
     ],
     Corner3232Wcup: [
         row('Corner_3232_Base', 'Base Gray Main', 'Base Beige Main', 'Corner3232Wcup_AO'),
-        row('Corner_3232_Belt', 'Tape Gray Main', 'Tape Beige Main', 'Corner3232Wcup_AO'),
+        row('Corner_3232_Belt', 'Tape Gray Main', 'Tape Beige Main'),
         row('Corner_3232_Fabric', 'Fabric Gray Main', 'Fabric Beige Main', 'Corner3232Wcup_AO'),
         row('Corner_3232_Leather', 'Leather Gray Main', 'Leather Beige Main', 'Corner3232Wcup_AO'),
-        row('Corner_3232_Metal', 'Chrome Main', 'Chrome Dark Main', 'Corner3232Wcup_AO'),
+        row('Corner_3232_Metal', 'Chrome Main', 'Chrome Dark Main'),
         row('Corner_3232_Stitches', 'Stitch Gray Main', 'Stitch Beige Main')
     ],
     FlipFlopBench: [
@@ -49,14 +49,14 @@ const ROCKPORT_FURNITURE_MATERIALS = {
         row('FL_FL_Fabric', 'Fabric Gray Main', 'Fabric Beige Main', 'FlipFlopBench_AO'),
         row('FL_FL_Leather', 'Leather Gray Main', 'Leather Beige Main', 'FlipFlopBench_AO'),
         row('FL_FL_Metal_Matte', 'Plastic Black Noise Main', 'Plastic Black Noise Main', 'FlipFlopBench_AO'),
-        row('FL_FL_Metal_Polished', 'Chrome Main', 'Chrome Main', 'FlipFlopBench_AO'),
-        row('FL_FL_Metal_Screws', 'Chrome Main', 'Chrome Main', 'FlipFlopBench_AO'),
+        row('FL_FL_Metal_Polished', 'Chrome Main', 'Chrome Main'),
+        row('FL_FL_Metal_Screws', 'Chrome Main', 'Chrome Main'),
         row('FL_FL_Plastic', 'Plastic Black Noise Main', 'Plastic Black Noise Main', 'FlipFlopBench_AO'),
-        row('FL_FL_Stitches', 'Stitch Gray Main', 'Stitch Beige Main', 'FlipFlopBench_AO')
+        row('FL_FL_Stitches', 'Stitch Gray Main', 'Stitch Beige Main')
     ],
     HelmStand: [
         row('Helm_Stand_Base', 'Base Gray Main', 'Base Beige Main', 'Helm_Stand_1k_AO'),
-        row('Helm_Stand_Chrome', 'Chrome Main', 'Chrome Dark Main', 'Helm_Stand_1k_AO'),
+        row('Helm_Stand_Chrome', 'Chrome Main', 'Chrome Dark Main'),
         row('Helm_Stand_Fabric', 'Fabric Gray Main', 'Fabric Beige Main', 'Helm_Stand_1k_AO'),
         row('Helm_Stand_Leather', 'Leather Gray Main', 'Leather Beige Main', 'Helm_Stand_1k_AO'),
         row('Helm_Stand_Plate', 'Plastic Black Noise Main', 'Plastic Black Noise Main', 'Helm_Stand_1k_AO'),
@@ -87,7 +87,7 @@ const ROCKPORT_FURNITURE_MATERIALS = {
         row('Bench_37_Tape', 'Tape Gray Main', 'Tape Beige Main')
     ],
     PontoonLeftArm: [
-        row('Arm_Chrome', 'Chrome Main', 'Chrome Dark Main', 'Pontoon_Arm_AO_1k.jpg'),
+        row('Arm_Chrome', 'Chrome Main', 'Chrome Dark Main'),
         row('Arm_Fabric', 'Fabric Gray Main', 'Fabric Beige Main', 'Pontoon_Arm_AO_1k.jpg'),
         row('Arm_Leather', 'Leather Gray Main', 'Leather Beige Main', 'Pontoon_Arm_AO_1k.jpg'),
         row('Arm_Net', 'Arm Net Gray Main', 'Arm Net Beige Main'),
@@ -95,7 +95,7 @@ const ROCKPORT_FURNITURE_MATERIALS = {
         row('Arm_Stitches_Original', 'Stitch Gray Main', 'Tape Beige Main')
     ],
     PontoonRightArm: [
-        row('Arm_Chrome', 'Chrome Main', 'Chrome Dark Main', 'Pontoon_Arm_AO_1k.jpg'),
+        row('Arm_Chrome', 'Chrome Main', 'Chrome Dark Main'),
         row('Arm_Fabric', 'Fabric Gray Main', 'Fabric Beige Main', 'Pontoon_Arm_AO_1k.jpg'),
         row('Arm_Leather', 'Leather Gray Main', 'Leather Beige Main', 'Pontoon_Arm_AO_1k.jpg'),
         row('Arm_Net', 'Arm Net Gray Main', 'Arm Net Beige Main'),
@@ -103,7 +103,7 @@ const ROCKPORT_FURNITURE_MATERIALS = {
         row('Arm_Stitches_Original', 'Stitch Gray Main', 'Tape Beige Main')
     ],
     RockportHelms: [
-        row('Helm_metal', 'Chrome Main', 'Chrome Main', 'HelmStand_AO.jpg'),
+        row('Helm_metal', 'Chrome Main', 'Chrome Main'),
         row('Helms_Fabric', 'Fabric Gray Main', 'Fabric Beige Main', 'HelmStand_AO.jpg'),
         row('Helms_Leather', 'Leather Gray Main', 'Leather Beige Main', 'HelmStand_AO.jpg'),
         row('Helms_Net', 'Arm Net Gray Main', 'Arm Net Beige Main'),
@@ -113,7 +113,7 @@ const ROCKPORT_FURNITURE_MATERIALS = {
         row('Helms_zip', 'Plastic Black Noise Main', 'Plastic Black Noise Main')
     ],
     CupHolder: [
-        row('CupH_Chrome', 'Chrome Main', 'Chrome Dark Main', 'CupHolder_AO.jpg'),
+        row('CupH_Chrome', 'Chrome Main', 'Chrome Dark Main'),
         row('CupH_Leather', 'Leather Gray Main', 'Leather Beige Main', 'CupHolder_AO.jpg'),
         row('CupH_Stitches', 'Stitch Gray Main', 'Stitch Beige Main')
     ]
