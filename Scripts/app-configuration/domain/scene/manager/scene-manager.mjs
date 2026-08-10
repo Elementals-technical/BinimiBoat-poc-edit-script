@@ -10,6 +10,7 @@ import { MaterialService } from '../../../services/material/material-service.mjs
 import { DragMovementModule } from '../../../modules/drag-movement/DragMovementModule.mjs';
 import { TestUIPanel } from '../../../modules/test-ui/test-ui.mjs';
 import { LoggerService } from '../../../services/logger/logger-service.mjs';
+import { CameraTransitionService } from '../../../services/camera/camera-transition-service.mjs';
 
 /**
  * SceneManager — bootstrap застосунку. (Порт з Hasting, зачищений.)
@@ -68,6 +69,19 @@ export class SceneManager extends Script {
         this.app.dragModule = new DragMovementModule(this.app, cameraEntity);
         this.app.dragModule.register();
 
+        const cameraScripts = cameraEntity?.script;
+        const orbitCamera = cameraScripts?.orbitCameraNew || cameraScripts?.orbitCamera;
+        if (orbitCamera) {
+            this.app.cameraTransitionService = new CameraTransitionService({
+                orbitCamera,
+                sceneRoot: this.app.root,
+                mouseInput: cameraScripts.mouseInputNew || cameraScripts.mouseInput,
+                touchInput: cameraScripts.touchInputNew || cameraScripts.touchInput
+            });
+        } else {
+            LoggerService.warn(this, '[SceneManager] Orbit camera not found — reset view is unavailable');
+        }
+
         // 5. Тест-режим: ?testui в URL → дефолтна dev-панель усіх атрибутів.
         //    Монтується після bridge:ready (потрібен ConfiguratorAPI) на першому
         //    update (після застосування дефолтного конфіга).
@@ -80,5 +94,9 @@ export class SceneManager extends Script {
 
         this.app.sceneManager = this;
         LoggerService.log(this, '[SceneManager] Bootstrapped');
+    }
+
+    update(dt) {
+        this.app.cameraTransitionService?.update(dt);
     }
 }
