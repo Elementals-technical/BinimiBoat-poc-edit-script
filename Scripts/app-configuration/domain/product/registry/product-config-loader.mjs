@@ -8,6 +8,7 @@ import { RuleBoatMaterial } from '../rules/boat/RuleBoatMaterial.mjs';
 import { RuleFurniturePresetLayout } from '../rules/boat/RuleFurniturePresetLayout.mjs';
 import { RuleRockportFurnitureMaterial } from '../rules/boat/RuleRockportFurnitureMaterial.mjs';
 import { RuleCameraView } from '../rules/boat/RuleCameraView.mjs';
+import { RuleFenceDimensions } from '../rules/boat/RuleFenceDimensions.mjs';
 import { RuleFurnitureColor } from '../rules/furniture/RuleFurnitureColor.mjs';
 import { RuleFurnitureVariant } from '../rules/furniture/RuleFurnitureVariant.mjs';
 import { defaultsForRole } from '../attributes/attributes-catalog.mjs';
@@ -22,7 +23,8 @@ export class ProductConfigLoader {
             role: 'platform-parametric',
             category: 'boat',
             rules: [RuleCameraView, RuleDeckLength, RuleDeckWidth, RuleFenceLength, RuleFenceWidth, RuleFrontIndent,
-                    RuleFenceType, RuleBoatMaterial, RuleFurniturePresetLayout, RuleRockportFurnitureMaterial],
+                    RuleFenceType, RuleBoatMaterial, RuleFurniturePresetLayout, RuleRockportFurnitureMaterial,
+                    RuleFenceDimensions],
             defaultConfig: { role: 'platform-parametric', type: 'Boat', ...defaultsForRole('platform-parametric', 'Boat') }
         });
 

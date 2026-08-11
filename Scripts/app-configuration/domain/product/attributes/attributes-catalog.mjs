@@ -69,7 +69,10 @@ export const BOAT_ATTRIBUTES = {
             { label: 'Blue', value: 'Blue' }, { label: 'Gray', value: 'Gray' },
             { label: 'Tan', value: 'Tan' }, { label: 'White', value: 'White' }
         ]
-    }
+    },
+    ShowFenceDimensions: {
+        key: 'ShowFenceDimensions', label: 'Show Fence Dimensions', type: 'boolean', default: false
+    },
 };
 
 export const FURNITURE_ATTRIBUTES = {
@@ -146,6 +149,9 @@ export function validatePatch(role, productType, rawPatch) {
         } else if (attr.type === 'enum') {
             if (!isValidEnum(attr, value)) { rejected.push(key); console.warn(`[attributes] Bad enum for "${key}": ${value}`); continue; }
             out[key] = value;
+        } else if (attr.type === 'boolean') {
+            if (typeof value !== 'boolean') { rejected.push(key); console.warn(`[attributes] Bad boolean for "${key}": ${value}`); continue; }
+            out[key] = value;
         } else {
             out[key] = value;
         }
@@ -164,6 +170,7 @@ export function defaultsForRole(role, productType = null) {
         if (attr.appliesTo && !attr.appliesTo.includes(productType)) continue;
         if (attr.type === 'number') out[attr.key] = attr.default;
         else if (attr.type === 'enum') out[attr.key] = attr.default ?? attr.values[0].value;
+        else if (attr.type === 'boolean') out[attr.key] = attr.default ?? false;
     }
     return out;
 }
