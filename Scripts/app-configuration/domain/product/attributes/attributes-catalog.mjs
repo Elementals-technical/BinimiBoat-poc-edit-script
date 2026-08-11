@@ -12,6 +12,13 @@
  */
 
 export const BOAT_ATTRIBUTES = {
+    CameraView: {
+        key: 'CameraView', label: 'Camera View', type: 'enum', default: 'iso', allowReselect: true,
+        values: [
+            { label: 'ISO camera', value: 'iso' },
+            { label: 'Front camera', value: 'front' }
+        ]
+    },
     LayoutRockportSeries: {
         key: 'LayoutRockportSeries', label: 'Layout Rockport Series', type: 'enum', default: 'none',
         values: [
