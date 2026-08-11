@@ -41,8 +41,6 @@ export class TestUIPanel {
 
         panel.appendChild(this._h('BIMINI TEST UI', 14));
 
-        panel.appendChild(this._cameraSelect(app));
-
         // ── лог результату ──
         const log = document.createElement('div');
         log.style.cssText = 'color:#8f8;white-space:pre-wrap;margin:6px 0;min-height:28px;font-size:11px';
@@ -160,44 +158,21 @@ export class TestUIPanel {
             opt.selected = o.value === current;
             sel.appendChild(opt);
         }
+        let previousValue = sel.value;
+        if (attr.allowReselect) {
+            sel.onpointerdown = () => {
+                previousValue = sel.value || previousValue;
+                sel.selectedIndex = -1;
+            };
+            sel.onblur = () => {
+                if (!sel.value) sel.value = previousValue;
+            };
+        }
         sel.onchange = () => {
             const raw = attr.values.find(o => String(o.value) === sel.value)?.value;
+            previousValue = sel.value;
             onChange(raw);
         };
-        wrap.append(label, sel);
-        return wrap;
-    }
-
-    /** @private camera view select із повторним вибором активного значення */
-    static _cameraSelect(app) {
-        const wrap = document.createElement('div');
-        wrap.style.margin = '6px 0';
-
-        const label = document.createElement('div');
-        label.textContent = 'Camera view';
-        label.style.color = '#9cf';
-
-        const sel = document.createElement('select');
-        sel.style.cssText = 'width:100%;background:#222;color:#eee;border:1px solid #555';
-        sel.disabled = !app.cameraTransitionService;
-        sel.append(
-            new Option('ISO camera', 'iso'),
-            new Option('Front camera', 'front')
-        );
-
-        let previousValue = sel.value;
-        sel.onpointerdown = () => {
-            previousValue = sel.value || previousValue;
-            sel.selectedIndex = -1;
-        };
-        sel.onchange = () => {
-            previousValue = sel.value;
-            app.cameraTransitionService?.transitionTo(sel.value);
-        };
-        sel.onblur = () => {
-            if (!sel.value) sel.value = previousValue;
-        };
-
         wrap.append(label, sel);
         return wrap;
     }
