@@ -11,10 +11,11 @@ const HEIGHT_GAP = 0.15;
  * that neither the boat nor water can occlude the rulers.
  */
 export class FenceDimensionOverlay {
-    constructor(app, cameraEntity, fenceNodes) {
+    constructor(app, cameraEntity, fenceNodes, excludedNodeNames = []) {
         this.app = app;
         this.cameraEntity = cameraEntity;
         this.fenceNodes = fenceNodes;
+        this.excludedNodeNames = excludedNodeNames;
         this.values = { length: 0, width: 0 };
         this._lastBoundsSource = null;
         this._screen = [new Vec3(), new Vec3(), new Vec3(), new Vec3()];
@@ -113,9 +114,10 @@ export class FenceDimensionOverlay {
         const combined = new BoundingBox();
         let found = false;
         const nodes = this.fenceNodes || {};
-        const frontBounds = SceneEntityHelper.traverseAabb(nodes.boat_fence_front);
+        const ignored = this.excludedNodeNames || [];
+        const frontBounds = SceneEntityHelper.traverseAabb(nodes.boat_fence_front, ignored);
         for (const node of [nodes.boat_fence_front, nodes.boat_fence_back, nodes.fence_unip]) {
-            const bounds = SceneEntityHelper.traverseAabb(node);
+            const bounds = SceneEntityHelper.traverseAabb(node, ignored);
             if (!bounds) continue;
             if (!found) {
                 combined.copy(bounds);
@@ -127,7 +129,7 @@ export class FenceDimensionOverlay {
         if (found && this._isValidBounds(combined)) {
             return { bounds: combined, frontBounds, source: 'active-product/fence-parts' };
         }
-        const hierarchyBounds = SceneEntityHelper.traverseAabb(nodes.hierarchy);
+        const hierarchyBounds = SceneEntityHelper.traverseAabb(nodes.hierarchy, ignored);
         if (hierarchyBounds && this._isValidBounds(hierarchyBounds)) {
             return { bounds: hierarchyBounds, frontBounds, source: 'active-product/fence-hierarchy' };
         }
