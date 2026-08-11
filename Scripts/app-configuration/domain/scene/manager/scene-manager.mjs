@@ -98,5 +98,6 @@ export class SceneManager extends Script {
 
     update(dt) {
         this.app.cameraTransitionService?.update(dt);
+        this.app.fenceDimensionOverlay?.update();
     }
 }

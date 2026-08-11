@@ -61,6 +61,7 @@ export class TestUIPanel {
             const cur = current[attr.key];
             if (attr.type === 'number') panel.appendChild(this._range(attr, cur, v => send({ [attr.key]: v })));
             else if (attr.type === 'enum') panel.appendChild(this._select(attr, cur, v => send({ [attr.key]: v })));
+            else if (attr.type === 'boolean') panel.appendChild(this._checkbox(attr, cur, v => send({ [attr.key]: v })));
         }
         panel.appendChild(log);
         // Furniture-блок прибрано (2026-07-02) — повернемо, коли дійде черга до меблів.
@@ -175,5 +176,17 @@ export class TestUIPanel {
         };
         wrap.append(label, sel);
         return wrap;
+    }
+
+    /** @private boolean -> checkbox */
+    static _checkbox(attr, current, onChange) {
+        const label = document.createElement('label');
+        label.style.cssText = 'display:flex;gap:8px;align-items:center;margin:6px 0;color:#9cf;cursor:pointer';
+        const input = document.createElement('input');
+        input.type = 'checkbox';
+        input.checked = current ?? attr.default ?? false;
+        input.onchange = () => onChange(input.checked);
+        label.append(input, document.createTextNode(attr.label));
+        return label;
     }
 }
