@@ -22,7 +22,7 @@
                 this.gltf.meshes[meshIndex].primitives[0].material = materialIndex;
                 const nodeIndex = this.gltf.nodes.length;
                 this.gltf.nodes.push({
-                    name: mesh.name,
+                    name: this._nodeName(mesh),
                     mesh: meshIndex,
                     translation: this._scaleVector(meshData.transform.position, scaleToMeters),
                     rotation: meshData.transform.rotation,
@@ -54,6 +54,12 @@
             ]
         });
         return meshIndex;
+    }
+    _nodeName(mesh) {
+        if (mesh.presetClone?.name) {
+            return `${mesh.presetClone.name}/${mesh.name}`;
+        }
+        return mesh.entityPath || mesh.name;
     }
     _getMaterialIndex(materialData) {
         const diffId = materialData.diffuseMap ? materialData.diffuseMap.id || materialData.diffuseMap.name : 'no_diff';
@@ -88,17 +94,19 @@
             const matDef = this.gltf.materials[entry.index];
             const matData = entry.data;
             if (matData.diffuseMap) {
-                const texIndex = await this._addTexture(matData.diffuseMap, options);
+                const texIndex = await this._addTexture(matData.diffuseMap, options, matData.diffuseMapTint);
                 if (texIndex !== -1) {
                     matDef.pbrMetallicRoughness.baseColorTexture = {
                         index: texIndex
                     };
-                    matDef.pbrMetallicRoughness.baseColorFactor = [
-                        1,
-                        1,
-                        1,
-                        1
-                    ];
+                    if (matData.diffuseMapTint) {
+                        matDef.pbrMetallicRoughness.baseColorFactor = [
+                            1,
+                            1,
+                            1,
+                            matData.baseColor?.[3] ?? 1
+                        ];
+                    }
                 }
             }
             if (matData.normalMap) {
@@ -109,17 +117,37 @@
                     };
                 }
             }
+            if (matData.roughnessMap || matData.metallicMap) {
+                const texIndex = await this._addTexture(matData.roughnessMap || matData.metallicMap, options);
+                if (texIndex !== -1) {
+                    matDef.pbrMetallicRoughness.metallicRoughnessTexture = {
+                        index: texIndex
+                    };
+                    matDef.pbrMetallicRoughness.roughnessFactor = 1;
+                }
+            }
+            if (matData.occlusionMap) {
+                const texIndex = await this._addTexture(matData.occlusionMap, options);
+                if (texIndex !== -1) {
+                    matDef.occlusionTexture = {
+                        index: texIndex
+                    };
+                }
+            }
         }
     }
-    async _addTexture(textureObj, options) {
+    async _addTexture(textureObj, options, tint = null) {
         if (!textureObj) return -1;
-        const cacheKey = textureObj.id || textureObj.name;
+        const tintKey = tint ? `_${tint.map((value)=>this._round(value)).join("_")}` : "";
+        const cacheKey = `${textureObj.id || textureObj.name}${tintKey}`;
         if (this.textureMap.has(cacheKey)) {
             return this.textureMap.get(cacheKey);
         }
         try {
-            const imageBuffer = await this._textureToPNG(textureObj, options.maxTextureSize || 1024);
-            if (!imageBuffer) return -1;
+            const imageBuffer = await this._textureToPNG(textureObj, options.maxTextureSize || 1024, tint);
+            if (!imageBuffer) {
+                return -1;
+            }
             const bufferViewIndex = this._addBufferView(imageBuffer, 0, false);
             const imageIndex = this.gltf.images.length;
             this.gltf.images.push({
@@ -137,13 +165,13 @@
             return -1;
         }
     }
-    _textureToPNG(texture, maxSize) {
+    _textureToPNG(texture, maxSize, tint = null) {
         return new Promise((resolve)=>{
             let source = texture.getSource();
             if (!source && texture._levels && texture._levels[0]) {
                 source = texture._levels[0];
             }
-            const isValidSource = source && (source instanceof HTMLImageElement || source instanceof HTMLCanvasElement || source instanceof ImageBitmap || source instanceof HTMLVideoElement);
+            const isValidSource = source && (source instanceof HTMLImageElement || source instanceof HTMLCanvasElement || (typeof ImageBitmap !== "undefined" && source instanceof ImageBitmap) || source instanceof HTMLVideoElement);
             if (!isValidSource) {
                 resolve(null);
                 return;
@@ -164,6 +192,9 @@
                     source.crossOrigin = "anonymous";
                 }
                 ctx.drawImage(source, 0, 0, width, height);
+                if (tint) {
+                    this._applyTintToCanvas(ctx, width, height, tint);
+                }
                 canvas.toBlob((blob)=>{
                     if (!blob) {
                         resolve(null);
@@ -177,6 +208,24 @@
                 resolve(null);
             }
         });
+    }
+    _applyTintToCanvas(ctx, width, height, tint) {
+        const pixels = ctx.getImageData(0, 0, width, height);
+        const data = pixels.data;
+        const r = tint[0] ?? 1;
+        const g = tint[1] ?? 1;
+        const b = tint[2] ?? 1;
+        const a = tint[3] ?? 1;
+        for(let i = 0; i < data.length; i += 4){
+            data[i] = Math.round(data[i] * r);
+            data[i + 1] = Math.round(data[i + 1] * g);
+            data[i + 2] = Math.round(data[i + 2] * b);
+            data[i + 3] = Math.round(data[i + 3] * a);
+        }
+        ctx.putImageData(pixels, 0, 0);
+    }
+    _round(value) {
+        return Math.round((Number(value) || 0) * 1000) / 1000;
     }
     _addAccessor(data, type, componentType, isIndices) {
         const accessorIndex = this.gltf.accessors.length;

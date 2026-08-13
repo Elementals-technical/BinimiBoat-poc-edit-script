@@ -3,6 +3,13 @@ import { GLBExporter } from "./glb-exporter.mjs";
 import { USDZExporter } from "./usdz-exporter.mjs";
 import { DownloadHelper } from "../../helpers/download-helper.mjs";
 import { CompositionManager } from "../../domain/composition/composition-manager.mjs";
+import { LoggerService } from "../logger/logger-service.mjs";
+import { MaterialService } from "../material/material-service.mjs";
+import rockportFurnitureMaterials from "../../domain/product/parametric/rockport-furniture-materials.mjs";
+import {
+  PRESET_FURNITURE_CLONE_MARKER,
+  PRESET_FURNITURE_TEMPLATE,
+} from "../furniture/preset-furniture-service.mjs";
 
 /**
  * @class ARExportService
@@ -12,6 +19,7 @@ class ARExportService {
   constructor(app) {
     this.app = app;
     this.sceneCollector = new SceneCollector(app);
+    this._generatedTintedTextures = [];
   }
   /**
    * Creates a temporary root entity with all products for export
@@ -20,12 +28,21 @@ class ARExportService {
     const compositionManager = CompositionManager.instance;
     const composition = compositionManager?.getActiveComposition();
     if (!composition) throw new Error("No active composition");
+    await this._syncRockportFurnitureMaterialsForExport(composition);
     const pc = window.pc || this.app.constructor;
     const rootEntity = new pc.Entity("AR_ExportRoot");
     this.app.root.addChild(rootEntity);
     const allProducts = composition.getAllProducts();
-    console.log("allProducts --- ==== ", allProducts);
     const movedEntities = [];
+    const furnitureGroup = this.app.root.findByName("FurnitureGroup_Main");
+    if (furnitureGroup?.enabled) {
+      this._addRuntimeCloneToExportRoot(furnitureGroup, rootEntity);
+    } else {
+      const directPresetClones = this._collectPresetFurnitureClones(this.app.root);
+      if (directPresetClones.length) {
+        this._addPresetClonesToExportRoot(directPresetClones, rootEntity);
+      }
+    }
     for (const productId of Object.keys(allProducts)) {
       const productEntity = this.app.root.findByName(productId);
       if (productEntity && productEntity.enabled) {
@@ -46,6 +63,106 @@ class ARExportService {
     return {
       rootEntity,
       movedEntities,
+    };
+  }
+
+  _addRuntimeCloneToExportRoot(source, rootEntity) {
+    const clone = source.clone();
+    const worldPosition = source.getPosition().clone();
+    const worldRotation = source.getRotation().clone();
+    const worldScale = this._extractWorldScale(source);
+
+    clone.name = source.name;
+    clone.enabled = true;
+    rootEntity.addChild(clone);
+    clone.setPosition(worldPosition);
+    clone.setRotation(worldRotation);
+    clone.setLocalScale(worldScale.x, worldScale.y, worldScale.z);
+    return clone;
+  }
+
+  _addPresetClonesToExportRoot(clones, rootEntity) {
+    const pc = window.pc || this.app.constructor;
+    const group = new pc.Entity("AR_PresetFurniture_Direct");
+    rootEntity.addChild(group);
+    for (const source of clones) {
+      if (!source?.enabled || this._isUnderEntity(source, rootEntity)) continue;
+      this._addRuntimeCloneToExportRoot(source, group);
+    }
+  }
+
+  _collectPresetFurnitureClones(root) {
+    const out = [];
+    const pending = [...(root?.children || [])];
+    while (pending.length > 0) {
+      const entity = pending.shift();
+      if (this._isPresetFurnitureClone(entity)) out.push(entity);
+      pending.push(...(entity?.children || []));
+    }
+    return out;
+  }
+
+  _isPresetFurnitureClone(entity) {
+    if (!entity) return false;
+    return (
+      entity[PRESET_FURNITURE_CLONE_MARKER] === true ||
+      Boolean(entity[PRESET_FURNITURE_TEMPLATE]) ||
+      Boolean(this._templateFromPresetName(entity.name))
+    );
+  }
+
+  async _syncRockportFurnitureMaterialsForExport(composition) {
+    const boat = composition?.getBoat?.();
+    const state = boat?.snapshot || {};
+    const layout = state.LayoutRockportSeries || "none";
+    const color = state.RockportFurnitureColor || "Grey";
+    const root = this.app.root.findByName("FurnitureGroup_Main");
+    const clones = this._collectPresetFurnitureClones(root || this.app.root);
+    if (layout === "none" || !clones.length) return;
+
+    for (const clone of clones) {
+      const template = clone[PRESET_FURNITURE_TEMPLATE] || this._templateFromPresetName(clone.name);
+      const assignments = rockportFurnitureMaterials[template];
+      if (!assignments) continue;
+      for (const assignment of assignments) {
+        const target = clone.findByName(assignment.node);
+        const expected = assignment[color];
+        if (!target || !expected) continue;
+        const material = await MaterialService.loadMaterialWithAo(expected, assignment.ao);
+        MaterialService.applyToEntity(target, material);
+      }
+    }
+  }
+
+  _isUnderEntity(entity, ancestor) {
+    let current = entity;
+    while (current) {
+      if (current === ancestor) return true;
+      current = current.parent;
+    }
+    return false;
+  }
+
+  _templateFromPresetName(name) {
+    const parts = String(name || "").split("__");
+    const template = parts.length >= 3 && /^FurnitureGroup_/i.test(parts[1]) ? parts[2] : null;
+    return template && rockportFurnitureMaterials[template] ? template : null;
+  }
+
+  _extractWorldScale(entity) {
+    const worldTransform = entity.getWorldTransform();
+    const pc = window.pc || this.app.constructor;
+    if (worldTransform?.getScale && pc?.Vec3) {
+      const scale = new pc.Vec3();
+      worldTransform.getScale(scale);
+      return scale;
+    }
+
+    const d = worldTransform.data;
+    return {
+      x: Math.hypot(d[0], d[1], d[2]),
+      y: Math.hypot(d[4], d[5], d[6]),
+      z: Math.hypot(d[8], d[9], d[10]),
     };
   }
 
@@ -78,11 +195,19 @@ class ARExportService {
             material.blendType = pc.BLEND_NORMAL;
           }
           if (matData.diffuseMap) {
-            material.diffuseMap = matData.diffuseMap;
-            material.diffuse.set(1, 1, 1);
+            material.diffuseMap = matData.diffuseMapTint
+              ? this._createTintedTexture(matData.diffuseMap, matData.diffuseMapTint)
+              : matData.diffuseMap;
+            if (matData.diffuseMapTint) {
+              material.diffuse.set(1, 1, 1);
+            }
           }
           if (matData.normalMap) {
             material.normalMap = matData.normalMap;
+          }
+          if (matData.occlusionMap) {
+            material.aoMap = matData.occlusionMap;
+            material.lightMap = matData.occlusionMap;
           }
           if (matData.roughnessMap) {
             material.glossMap = matData.roughnessMap;
@@ -121,6 +246,60 @@ class ARExportService {
     return cleanRoot;
   }
 
+  _createTintedTexture(texture, tint) {
+    if (!texture || !tint || typeof document === "undefined") return texture;
+    let source = texture.getSource?.();
+    if (!source && texture._levels?.[0]) source = texture._levels[0];
+    const pc = window.pc || this.app.constructor;
+    const isValidSource =
+      source &&
+      (source instanceof HTMLImageElement ||
+        source instanceof HTMLCanvasElement ||
+        (typeof ImageBitmap !== "undefined" && source instanceof ImageBitmap) ||
+        source instanceof HTMLVideoElement);
+    if (!isValidSource) {
+      return texture;
+    }
+    try {
+      const width = source.width || texture.width;
+      const height = source.height || texture.height;
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(source, 0, 0, width, height);
+      const pixels = ctx.getImageData(0, 0, width, height);
+      const data = pixels.data;
+      const r = tint[0] ?? 1;
+      const g = tint[1] ?? 1;
+      const b = tint[2] ?? 1;
+      const a = tint[3] ?? 1;
+      for (let i = 0; i < data.length; i += 4) {
+        data[i] = Math.round(data[i] * r);
+        data[i + 1] = Math.round(data[i + 1] * g);
+        data[i + 2] = Math.round(data[i + 2] * b);
+        data[i + 3] = Math.round(data[i + 3] * a);
+      }
+      ctx.putImageData(pixels, 0, 0);
+      const tintedTexture = new pc.Texture(this.app.graphicsDevice, {
+        width,
+        height,
+        format: pc.PIXELFORMAT_R8_G8_B8_A8,
+      });
+      tintedTexture.name = `${texture.name || "diffuse"}_ar_tinted`;
+      tintedTexture.setSource(canvas);
+      this._generatedTintedTextures.push(tintedTexture);
+      return tintedTexture;
+    } catch (error) {
+      LoggerService.warn(this, "[ARExport] Failed to tint diffuse texture", {
+        texture: texture.name,
+        tint,
+        error: error?.message || String(error),
+      });
+      return texture;
+    }
+  }
+
   async exportToAR(format = "both", options = {}) {
     let exportData = null;
     let usdzTempRoot = null;
@@ -132,11 +311,10 @@ class ARExportService {
         maxTextureSize: options.maxTextureSize || 1024,
         filename: options.filename,
       };
+      await this._waitForSceneSettled();
       exportData = await this._createExportEntity();
-      console.log("exportData --- ==== ", exportData);
       const { rootEntity } = exportData;
       const geometryData = this.sceneCollector.collectGeometryFromEntity(rootEntity);
-      console.log("geometryData --- ==== ", geometryData);
       const result = {};
       if (format === "glb" || format === "both") {
         const glbData = await GLBExporter.export(geometryData, exportOptions);
@@ -150,11 +328,13 @@ class ARExportService {
         result.usdz = DownloadHelper.createBlob(usdzData, "model/vnd.usdz+zip");
       }
       return result;
-    } catch (error) {
-      throw error;
     } finally {
       if (usdzTempRoot) {
         usdzTempRoot.destroy();
+      }
+      if (this._generatedTintedTextures.length) {
+        this._generatedTintedTextures.forEach((texture) => texture.destroy?.());
+        this._generatedTintedTextures.length = 0;
       }
       if (exportData && exportData.movedEntities) {
         exportData.movedEntities.forEach(
@@ -170,6 +350,13 @@ class ARExportService {
         exportData.rootEntity.destroy();
       }
     }
+  }
+
+  _waitForSceneSettled() {
+    if (typeof requestAnimationFrame !== "function") return Promise.resolve();
+    return new Promise((resolve) => {
+      requestAnimationFrame(() => requestAnimationFrame(resolve));
+    });
   }
 
   async downloadARFiles(format = "both", options = {}) {
