@@ -36,30 +36,34 @@ export const BOAT_ATTRIBUTES = {
             { label: 'Beige', value: 'Beige' }
         ]
     },
+    PortablePontoonCupholder: {
+        key: 'PortablePontoonCupholder', label: 'Portable Pontoon Cupholder', type: 'number',
+        min: 0, step: 1, max: 5, default: 0
+    },
     FenceTypeFront: {
         key: 'FenceTypeFront', label: 'Fence Type Front', type: 'enum', default: 'round_fence_front',
         values: [
-            { label: 'Square fence',   value: 'square_fence_front' },
-            { label: 'Round fence',    value: 'round_fence_front' },
+            { label: 'Square fence', value: 'square_fence_front' },
+            { label: 'Round fence', value: 'round_fence_front' },
             { label: 'Round fence 36', value: 'round_fence_36_front' }
         ]
     },
     FenceTypeBack: {
         key: 'FenceTypeBack', label: 'Fence Type Back', type: 'enum', default: 'round_fence_back',
         values: [
-            { label: 'Square fence',   value: 'square_fence_back' },
-            { label: 'Round fence',    value: 'round_fence_back' },
+            { label: 'Square fence', value: 'square_fence_back' },
+            { label: 'Round fence', value: 'round_fence_back' },
             { label: 'Round fence 36', value: 'round_fence_36_back' }
         ]
     },
-    DeckLength:  { key: 'DeckLength',  label: 'Deck Length',  type: 'number', min: 168, step: 1, max: 384, default: 240 },
-    FenceLength: { key: 'FenceLength', label: 'Fence Length', type: 'number', min: 96,  step: 1, max: 335, default: 216 },
-    FenceWidth:  { key: 'FenceWidth',  label: 'Fence Width',  type: 'number', min: 86,  step: 1, max: 100, default: 90 },
-    FrontIndent: { key: 'FrontIndent', label: 'Front Indent', type: 'number', min: 0,   step: 1, max: 48,  default: 0 },
-    DeckWidth:   { key: 'DeckWidth',   label: 'Deck Width',   type: 'number', min: 96,  step: 6, max: 102, default: 96 },
+    DeckLength: { key: 'DeckLength', label: 'Deck Length', type: 'number', min: 168, step: 1, max: 384, default: 240 },
+    FenceLength: { key: 'FenceLength', label: 'Fence Length', type: 'number', min: 96, step: 1, max: 335, default: 216 },
+    FenceWidth: { key: 'FenceWidth', label: 'Fence Width', type: 'number', min: 86, step: 1, max: 100, default: 90 },
+    FrontIndent: { key: 'FrontIndent', label: 'Front Indent', type: 'number', min: 0, step: 1, max: 48, default: 0 },
+    DeckWidth: { key: 'DeckWidth', label: 'Deck Width', type: 'number', min: 96, step: 6, max: 102, default: 96 },
     DeckColor: {
         key: 'DeckColor', label: 'Deck Color', type: 'enum',
-        values: [ { label: 'Beige', value: 'Deck Beige' }, { label: 'Grey', value: 'Deck Grey' } ]
+        values: [{ label: 'Beige', value: 'Deck Beige' }, { label: 'Grey', value: 'Deck Grey' }]
     },
     FenceColor: {
         key: 'FenceColor', label: 'Fence Color', type: 'enum',
@@ -70,6 +74,62 @@ export const BOAT_ATTRIBUTES = {
             { label: 'Tan', value: 'Tan' }, { label: 'White', value: 'White' }
         ]
     },
+    AddPowerBimini: {
+        key: 'AddPowerBimini', label: 'Add Power Bimini', type: 'boolean', default: false
+    },
+    BiminiFabricColor: {
+        key: 'BiminiFabricColor', label: 'Fabric Color', type: 'enum', default: 'Beige',
+        values: [
+
+            { label: 'Tent Beige', value: 'Tent Beige' },
+            { label: 'Tent Black', value: 'Tent Black' },
+            { label: 'Tent Grey', value: 'Tent Grey' },
+            { label: 'Tent Navy', value: 'Tent Navy' }
+        ]
+    },
+    BiminiFrameColor: {
+        key: 'BiminiFrameColor', label: 'Frame Color', type: 'enum', default: 'Black',
+        values: [
+            { label: 'Black', value: 'Black' },
+            { label: 'Silver', value: 'Silver' }
+        ]
+    },
+    AddBiminiExtension: {
+        key: 'AddBiminiExtension', label: 'Add Bimini Extension', type: 'boolean', default: false
+    },
+    ExtendBimini: {
+        key: 'ExtendBimini', label: 'Extend Bimini', type: 'boolean', default: false
+    },
+    OpenBimini: {
+        key: 'OpenBimini', label: 'Open Bimini', type: 'boolean', default: true
+    },
+    BiminiExtensionLength: {
+        key: 'BiminiExtensionLength', label: 'Extended Length', type: 'enum', default: '6',
+        values: [
+            { label: "6'", value: '6' },
+            { label: "7'", value: '7' }
+        ]
+    },
+    AddSportArmAttachment: {
+        key: 'AddSportArmAttachment', label: 'Add Sport Arm Attachment', type: 'boolean', default: false
+    },
+    SportArmColor: {
+        key: 'SportArmColor', label: 'Sport Arm Color', type: 'enum', default: 'Black',
+        values: [
+            { label: 'Black', value: 'Black' },
+            { label: 'Silver', value: 'Silver' }
+        ]
+    },
+    SportArmLength: {
+        key: 'SportArmLength', label: 'Extended Length', type: 'enum', default: '32',
+        values: [
+            { label: '32"', value: '32' },
+            { label: '36"', value: '36' }
+        ]
+    },
+    AddSureStepPontoonBoatLadder: {
+        key: 'AddSureStepPontoonBoatLadder', label: 'Add SureStep Pontoon Boat Ladder', type: 'boolean', default: false
+    },
     ShowFenceDimensions: {
         key: 'ShowFenceDimensions', label: 'Show Fence Dimensions', type: 'boolean', default: false
     },
@@ -78,7 +138,7 @@ export const BOAT_ATTRIBUTES = {
 export const FURNITURE_ATTRIBUTES = {
     FurnitureColor: {
         key: 'FurnitureColor', label: 'Furniture Color', type: 'enum',
-        values: [ { label: 'Beige', value: 'Beige' }, { label: 'Grey', value: 'Grey' } ]
+        values: [{ label: 'Beige', value: 'Beige' }, { label: 'Grey', value: 'Grey' }]
     },
     // Per-type: розмір лавки. Був structural `size` (без валідації) — тепер повноцінний enum.
     Size: {

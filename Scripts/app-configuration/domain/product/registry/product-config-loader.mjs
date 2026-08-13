@@ -5,7 +5,14 @@ import { RuleFenceWidth } from '../rules/boat/RuleFenceWidth.mjs';
 import { RuleFrontIndent } from '../rules/boat/RuleFrontIndent.mjs';
 import { RuleFenceType } from '../rules/boat/RuleFenceType.mjs';
 import { RuleBoatMaterial } from '../rules/boat/RuleBoatMaterial.mjs';
+import { RuleBiminiFabricColor } from '../rules/boat/RuleBiminiFabricColor.mjs';
+import { RuleBiminiFrameSportArmColor } from '../rules/boat/RuleBiminiFrameSportArmColor.mjs';
+import { RuleBiminiFenceWidth } from '../rules/boat/RuleBiminiFenceWidth.mjs';
+import { RuleBiminiVisibility } from '../rules/boat/RuleBiminiVisibility.mjs';
+import { RuleBoatLadderVisibility } from '../rules/boat/RuleBoatLadderVisibility.mjs';
 import { RuleFurniturePresetLayout } from '../rules/boat/RuleFurniturePresetLayout.mjs';
+import { RulePortablePontoonCupholder } from '../rules/boat/RulePortablePontoonCupholder.mjs';
+import { RulePortablePontoonCupholderMaterial } from '../rules/boat/RulePortablePontoonCupholderMaterial.mjs';
 import { RuleRockportFurnitureMaterial } from '../rules/boat/RuleRockportFurnitureMaterial.mjs';
 import { RuleCameraView } from '../rules/boat/RuleCameraView.mjs';
 import { RuleFenceDimensions } from '../rules/boat/RuleFenceDimensions.mjs';
@@ -23,8 +30,10 @@ export class ProductConfigLoader {
             role: 'platform-parametric',
             category: 'boat',
             rules: [RuleCameraView, RuleDeckLength, RuleDeckWidth, RuleFenceLength, RuleFenceWidth, RuleFrontIndent,
-                    RuleFenceType, RuleBoatMaterial, RuleFurniturePresetLayout, RuleRockportFurnitureMaterial,
-                    RuleFenceDimensions],
+                RuleFenceType, RuleBoatMaterial, RuleBiminiFabricColor, RuleBiminiFrameSportArmColor, RuleBiminiFenceWidth,
+                RuleBiminiVisibility, RuleBoatLadderVisibility, RuleFurniturePresetLayout,
+                RulePortablePontoonCupholder, RulePortablePontoonCupholderMaterial,
+                RuleRockportFurnitureMaterial, RuleFenceDimensions],
             defaultConfig: { role: 'platform-parametric', type: 'Boat', ...defaultsForRole('platform-parametric', 'Boat') }
         });
 

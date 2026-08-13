@@ -113,7 +113,8 @@ const ROCKPORT_FURNITURE_MATERIALS = {
         row('Helms_zip', 'Plastic Black Noise Main', 'Plastic Black Noise Main')
     ],
     CupHolder: [
-        row('CupH_Chrome', 'Chrome Main', 'Chrome Dark Main'),
+        row('CupH_BottomLeather', 'Plastic Black Noise Main', 'Plastic Black Noise Main', 'CupHolder_AO.jpg'),
+        row('CupH_Chrome', 'Chrome Main', 'Chrome Main', 'CupHolder_AO.jpg'),
         row('CupH_Leather', 'Leather Gray Main', 'Leather Beige Main', 'CupHolder_AO.jpg'),
         row('CupH_Stitches', 'Stitch Gray Main', 'Stitch Beige Main')
     ]
