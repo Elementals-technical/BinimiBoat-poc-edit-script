@@ -98,7 +98,7 @@ export const BOAT_ATTRIBUTES = {
         key: 'AddBiminiExtension', label: 'Add Bimini Extension', type: 'boolean', default: false
     },
     ExtendBimini: {
-        key: 'ExtendBimini', label: 'Extend Bimini', type: 'boolean', default: false
+        key: 'ExtendBimini', label: 'Extend Bimini', type: 'boolean', default: true
     },
     OpenBimini: {
         key: 'OpenBimini', label: 'Open Bimini', type: 'boolean', default: true
