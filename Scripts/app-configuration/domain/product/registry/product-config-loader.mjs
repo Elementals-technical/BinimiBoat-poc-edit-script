@@ -1,14 +1,10 @@
 import { RuleDeckLength } from '../rules/boat/RuleDeckLength.mjs';
-import { RuleDeckWidth } from '../rules/boat/RuleDeckWidth.mjs';
-import { RuleFenceLength } from '../rules/boat/RuleFenceLength.mjs';
-import { RuleFenceWidth } from '../rules/boat/RuleFenceWidth.mjs';
+import { RuleDeckWidth } from '../rules/boat/RuleDeckWidth.mjs'; 
 import { RuleFrontIndent } from '../rules/boat/RuleFrontIndent.mjs';
 import { RuleFenceType } from '../rules/boat/RuleFenceType.mjs';
 import { RuleBoatMaterial } from '../rules/boat/RuleBoatMaterial.mjs';
-import { RuleBiminiFabricColor } from '../rules/boat/RuleBiminiFabricColor.mjs';
 import { RuleBiminiFrameSportArmColor } from '../rules/boat/RuleBiminiFrameSportArmColor.mjs';
-import { RuleBiminiFenceWidth } from '../rules/boat/RuleBiminiFenceWidth.mjs';
-import { RuleBiminiVisibility } from '../rules/boat/RuleBiminiVisibility.mjs';
+import { RuleBiminiFenceWidth } from '../rules/boat/RuleBiminiFenceWidth.mjs'; 
 import { RuleBoatLadderVisibility } from '../rules/boat/RuleBoatLadderVisibility.mjs';
 import { RuleFurniturePresetLayout } from '../rules/boat/RuleFurniturePresetLayout.mjs';
 import { RulePortablePontoonCupholder } from '../rules/boat/RulePortablePontoonCupholder.mjs';
@@ -19,6 +15,8 @@ import { RuleFenceDimensions } from '../rules/boat/RuleFenceDimensions.mjs';
 import { RuleFurnitureColor } from '../rules/furniture/RuleFurnitureColor.mjs';
 import { RuleFurnitureVariant } from '../rules/furniture/RuleFurnitureVariant.mjs';
 import { defaultsForRole } from '../attributes/attributes-catalog.mjs';
+import { GENERATED_RULES } from '../rules/generated/index.mjs';
+
 
 /**
  * Дефолтні конфіги продуктів Bimini. Дефолти беруться з attributes-catalog (єдине джерело).
@@ -29,11 +27,12 @@ export class ProductConfigLoader {
         registry.register('Boat', {
             role: 'platform-parametric',
             category: 'boat',
-            rules: [RuleCameraView, RuleDeckLength, RuleDeckWidth, RuleFenceLength, RuleFenceWidth, RuleFrontIndent,
-                RuleFenceType, RuleBoatMaterial, RuleBiminiFabricColor, RuleBiminiFrameSportArmColor, RuleBiminiFenceWidth,
-                RuleBiminiVisibility, RuleBoatLadderVisibility, RuleFurniturePresetLayout,
+            rules: [RuleCameraView, RuleDeckLength, RuleDeckWidth,     RuleFrontIndent,
+                RuleFenceType, RuleBoatMaterial, RuleBiminiFrameSportArmColor, RuleBiminiFenceWidth,
+                RuleBoatLadderVisibility, RuleFurniturePresetLayout,
                 RulePortablePontoonCupholder, RulePortablePontoonCupholderMaterial,
-                RuleRockportFurnitureMaterial, RuleFenceDimensions],
+                RuleRockportFurnitureMaterial, RuleFenceDimensions,
+                ...(GENERATED_RULES.Boat ?? [])],
             defaultConfig: { role: 'platform-parametric', type: 'Boat', ...defaultsForRole('platform-parametric', 'Boat') }
         });
 

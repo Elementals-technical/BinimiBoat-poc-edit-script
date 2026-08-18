@@ -13,6 +13,12 @@ export class RuleExecutor {
     }
 
     registerRule(rule) {
+        // Захисна сітка для згенерованих правил: якщо той самий клас прилетить і явно,
+        // і через generatedRulesFor, тихого подвійного виконання не буде.
+        if (this.rules.some(r => r.name === rule.name)) {
+            LoggerService.warn(this, `[RuleExecutor] Duplicate rule "${rule.name}" ignored`);
+            return;
+        }
         rule.initialize(this.context);
         this.rules.push(rule);
         this.rules.sort((a, b) => a.priority - b.priority);
