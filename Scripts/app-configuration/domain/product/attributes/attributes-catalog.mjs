@@ -78,7 +78,7 @@ export const BOAT_ATTRIBUTES = {
         key: 'AddPowerBimini', label: 'Add Power Bimini', type: 'boolean', default: false
     },
     BiminiFabricColor: {
-        key: 'BiminiFabricColor', label: 'Fabric Color', type: 'enum', default: 'Beige',
+        key: 'BiminiFabricColor', label: 'Fabric Color', type: 'enum', default: 'Tent Beige',
         values: [
 
             { label: 'Tent Beige', value: 'Tent Beige' },
