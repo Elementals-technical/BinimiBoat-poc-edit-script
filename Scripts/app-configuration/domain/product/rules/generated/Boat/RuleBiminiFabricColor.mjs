@@ -12,7 +12,7 @@ export const ruleDefinition = Object.freeze({
     id: 'bimini-fabric-color',
     version: 1,
     productTypes: ['Boat'],
-    type: 'material',
+    type: 'attributeValueMaterial',
     priority: 34,
     watchAttributes: ['BiminiFabricColor'],
     conditions: [{ attribute: 'BiminiFabricColor', operator: 'isTruthy' }],
