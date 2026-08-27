@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "rules": [
+    {
+      "status": "managed",
+      "id": "bimini-fabric-color",
+      "className": "RuleBiminiFabricColor",
+      "productType": "Boat",
+      "sourcePath": "Scripts/app-configuration/domain/product/rules/generated/Boat/RuleBiminiFabricColor.mjs",
+      "sourceHash": "sha256:513c0d72fad2a2be3cba68406fd294e49f9421999c81db111aed81ea4b84aa1c",
+      "definition": {
+        "id": "bimini-fabric-color",
+        "version": 1,
+        "productTypes": [
+          "Boat"
+        ],
+        "type": "attributeValueMaterial",
+        "priority": 34,
+        "watchAttributes": [
+          "BiminiFabricColor"
+        ],
+        "conditions": [
+          {
+            "attribute": "BiminiFabricColor",
+            "operator": "isTruthy"
+          }
+        ],
+        "actions": [
+          {
+            "type": "applyMaterialByName",
+            "valueFrom": "BiminiFabricColor",
+            "targetAliases": [
+              "TentO_Fabric"
+            ]
+          },
+          {
+            "type": "applyMaterialByName",
+            "valueFrom": "BiminiFabricColor",
+            "targetAliases": [
+              "TentC_Close"
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}
