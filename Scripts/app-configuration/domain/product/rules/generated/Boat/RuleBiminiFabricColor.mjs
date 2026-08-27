@@ -5,64 +5,93 @@ import { MaterialService } from '../../../../../services/material/material-servi
 
 /**
  * AUTO-GENERATED RULE — DO NOT EDIT MANUALLY
- * Generated from RuleDefinition. The JSON export is the analyzable source
- * snapshot; this class is the PlayCanvas-compatible execution artifact.
+ * Source of truth: RuleDefinition stored by the Rule Editor.
  */
 export const ruleDefinition = Object.freeze({
-    id: 'bimini-fabric-color',
-    version: 1,
-    productTypes: ['Boat'],
-    type: 'attributeValueMaterial',
-    priority: 34,
-    watchAttributes: ['BiminiFabricColor'],
-    conditions: [{ attribute: 'BiminiFabricColor', operator: 'isTruthy' }],
-    actions: [
-        { type: 'applyMaterialByName', valueFrom: 'BiminiFabricColor', targetAliases: ['TentO_Fabric'] },
-        { type: 'applyMaterialByName', valueFrom: 'BiminiFabricColor', targetAliases: ['TentE_Fabric'] },
-        { type: 'applyMaterialByName', valueFrom: 'BiminiFabricColor', targetAliases: ['TentC_Close'] }
-    ]
-});
+        "id": "bimini-fabric-color",
+        "version": 1,
+        "productTypes": [
+            "Boat"
+        ],
+        "type": "attributeValueMaterial",
+        "priority": 34,
+        "watchAttributes": [
+            "BiminiFabricColor"
+        ],
+        "conditions": [
+            {
+                "attribute": "BiminiFabricColor",
+                "operator": "isTruthy"
+            }
+        ],
+        "actions": [
+            {
+                "type": "applyMaterialByName",
+                "valueFrom": "BiminiFabricColor",
+                "targetAliases": [
+                    "TentO_Fabric"
+                ]
+            },
+            {
+                "type": "applyMaterialByName",
+                "valueFrom": "BiminiFabricColor",
+                "targetAliases": [
+                    "TentC_Close"
+                ]
+            }
+        ]
+    });
+
+function reportRuntimeEvent() {}
+
+reportRuntimeEvent('rule-module-loaded', { className: "RuleBiminiFabricColor" });
 
 export class RuleBiminiFabricColor extends BaseProductRule {
     constructor() {
         super({
-            name: 'RuleBiminiFabricColor',
+            name: "RuleBiminiFabricColor",
             watchAttributes: ruleDefinition.watchAttributes,
             priority: ruleDefinition.priority
         });
- 
-        this.fabricTargets = ruleDefinition.actions.map(action => action.targetAliases);
     }
 
     async execute({ currentState }) {
-        debugger
-        const materialName = this._readState(currentState, 'BiminiFabricColor');
-        if (!materialName) return;
-        debugger
+        const selectedValue = this._readState(currentState, "BiminiFabricColor");
+        if (!selectedValue) return;
 
-        await this._applyTargets(this.fabricTargets, materialName);
+        reportRuntimeEvent('rule-execution-started', { selectedValue });
+        for (const action of ruleDefinition.actions) {
+            await this._applyAction(action, selectedValue);
+        }
+        reportRuntimeEvent('rule-executed', { selectedValue });
     }
 
     _readState(state, key) {
         return typeof state?.get === 'function' ? state.get(key) : state?.[key];
     }
 
-    async _applyTargets(targetsByAliases, materialName) {
-     
-        for (const aliases of targetsByAliases) {
-            const targets = SceneEntityHelper.collectByNames(this.entity, aliases);
-            if (!targets.length) {
-                LoggerService.warn(this, `[RuleBiminiFabricColor] target not found: ${aliases.join(' / ')}`);
-                continue;
-            }
+    async _applyAction(action, materialName) {
+        const aliases = action.targetAliases;
+        const targets = SceneEntityHelper.collectByNames(this.entity, aliases);
+        const foundAliases = new Set(targets.map((target) => target.name));
+        const missingAliases = aliases.filter((alias) => !foundAliases.has(alias));
 
-            try {
-                await MaterialService.applyMaterialByName(materialName, targets);
-            } catch (error) {
-                LoggerService.warn(this,
-                    `[RuleBiminiFabricColor] material \"${materialName}\" failed for ${aliases.join(' / ')}:`,
-                    error?.message || error);
-            }
+        if (missingAliases.length) {
+            const message = '[' + this.name + '] target not found: ' + missingAliases.join(' / ');
+            LoggerService.warn(this, message);
+            reportRuntimeEvent('warning', { message, aliases: missingAliases, requestedAliases: aliases, foundCount: targets.length });
+        }
+        if (!targets.length) {
+            return;
+        }
+
+        try {
+            const appliedCount = await MaterialService.applyMaterialByName(materialName, targets);
+            reportRuntimeEvent('action-applied', { materialName, aliases, appliedCount });
+        } catch (error) {
+            const message = '[' + this.name + '] material "' + materialName + '" failed for ' + aliases.join(' / ') + ': ' + (error?.message || error);
+            LoggerService.warn(this, message);
+            reportRuntimeEvent('warning', { message, aliases, materialName });
         }
     }
 }
