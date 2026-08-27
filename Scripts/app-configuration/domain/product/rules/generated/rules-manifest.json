@@ -7,7 +7,7 @@
       "className": "RuleBiminiFabricColor",
       "productType": "Boat",
       "sourcePath": "Scripts/app-configuration/domain/product/rules/generated/Boat/RuleBiminiFabricColor.mjs",
-      "sourceHash": "sha256:513c0d72fad2a2be3cba68406fd294e49f9421999c81db111aed81ea4b84aa1c",
+      "sourceHash": "sha256:ab386bad31465875fc7692b0ac8d6aa4c32acbac25ba300f0c72144327da995e",
       "definition": {
         "id": "bimini-fabric-color",
         "version": 1,
@@ -37,7 +37,7 @@
             "type": "applyMaterialByName",
             "valueFrom": "BiminiFabricColor",
             "targetAliases": [
-              "TentC_Close"
+              "TentC_Close1"
             ]
           }
         ]

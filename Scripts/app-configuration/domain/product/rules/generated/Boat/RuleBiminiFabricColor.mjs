@@ -36,7 +36,7 @@ export const ruleDefinition = Object.freeze({
                 "type": "applyMaterialByName",
                 "valueFrom": "BiminiFabricColor",
                 "targetAliases": [
-                    "TentC_Close"
+                    "TentC_Close1"
                 ]
             }
         ]
